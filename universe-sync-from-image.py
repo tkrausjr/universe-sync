@@ -44,6 +44,10 @@ def get_registry_manifests(registry_host,registry_port,repos):
             response = requests.get('http://'+ registry_host + ':'+str(registry_port) +'/v2/'+ i + '/tags/list')
             responseJson=response.json()
             print("Manifests Response " + str(responseJson))
+            name = responseJson['name']
+            tag = responseJson['tags'][0]
+            print("Name is " + name + " and tag is " + tag)
+
 
     return responseJson
 
@@ -74,11 +78,9 @@ def tag_images(images,client):
     '''
     for i in images:
         print("Tagging Image . . ." + i)
-
-        image = client.images.get(i)
-        print("Image Attributes are " + str(image.attrs))
-
-
+        # image = client.images.get(i)
+        # print("Image Attributes are " + str(image.attrs))
+        client.api.tag(i,"someserver:5000/myimage", tag='latest')
     return
 
 
