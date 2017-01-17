@@ -10,7 +10,7 @@ src_registry_port = 5000
 docker_client = docker.from_env()
 pulled_images =[]
 
-dst_registry_host = 'anotherserver'
+dst_registry_host = 'localhost'
 dst_registry_port = 5001
 
 
@@ -111,8 +111,9 @@ def push_images(new_images,client):
         print ("**SPLIT DST ImageFullName = " +dstfullImage)
         print ("**SPLIT DST srcImageName = " + dstImageName)
         print ("**SPLIT DST srcImageTag = " +dstImageTag)
-        client.images.push(fullImageRef,stream=True)
-       
+        for line in client.images.push(fullImageRef,stream=True,insecure_registry=True):
+            print (line)
+
     return new_images
 
 
