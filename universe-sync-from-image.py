@@ -23,7 +23,6 @@ def get_registry_images(registry_host,registry_port):
     '''
     print("get_registry_images Function")
     response = requests.get('http://'+ registry_host + ':'+str(registry_port) +'/v2/_catalog')
-    responseJson=response.json()
 
     if response.status_code != 200:
         print (str(response.status) + " Registry API CAll unsuccessful to " + registry_host + ':'+registry_port)
@@ -31,16 +30,19 @@ def get_registry_images(registry_host,registry_port):
     elif response == null:
         print ("No response. Source Registry Server is probably not available !")
         sys.exit(1)    
-    elif responseJson['repositories'] ==[]:
-        print ("No Images/Repositories found on Source Registry")
-        sys.exit(1)
     else:
+        responseJson=response.json()
         print("Response RAW JSON for Registry is" + str(responseJson))
-        repositories=[]
-        for i in responseJson['repositories']:
-            print("Found an image named " + i)
-            repositories.append(i)
-        return repositories
+        
+        if responseJson['repositories'] ==[]:
+            print ("No Images/Repositories found on Source Registry")
+            sys.exit(1)
+        else:
+            repositories=[]
+            for i in responseJson['repositories']:
+                print("Found an image named " + i)
+                repositories.append(i)
+            return repositories
 
 def get_registry_manifests(registry_host,registry_port,repos):
     registry_manifest_dict ={}
