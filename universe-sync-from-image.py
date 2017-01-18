@@ -7,7 +7,7 @@ import sys
 # Constants
 remove_images=True # Will remove local copies of images already transferred to dst_registry_host
 src_registry_host = 'localhost'
-src_registry_port = 5000
+src_registry_port = 5001
 docker_client = docker.from_env()
 pulled_images =[]
 
