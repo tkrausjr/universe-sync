@@ -23,7 +23,7 @@ def get_registry_images(registry_host,registry_port):
     :return:
     '''
     print("get_registry_images Function")
-    response = requests.get('https://'+ registry_host + ':'+str(registry_port) +'/v2/_catalog', Verify=False)
+    response = requests.get('https://'+ registry_host + ':'+str(registry_port) +'/v2/_catalog', verify=False)
 
     if response.status_code != 200:
         print (str(response.status_code) + " Registry API CAll unsuccessful to " + registry_host + ':'+str(registry_port))
@@ -50,7 +50,7 @@ def get_registry_manifests(registry_host,registry_port,repos):
     registry_manifest_dict ={}
     print("get_registry_manifests Function")
     for i in repos:
-            response = requests.get('https://'+ registry_host + ':'+str(registry_port) +'/v2/'+ i + '/tags/list', Verify=False)
+            response = requests.get('https://'+ registry_host + ':'+str(registry_port) +'/v2/'+ i + '/tags/list', verify=False)
             responseJson=response.json()
             print("Manifests Response " + str(responseJson))
             name = responseJson['name']
