@@ -23,10 +23,10 @@ def get_registry_images(registry_host,registry_port):
     :return:
     '''
     print("get_registry_images Function")
-    response = requests.get('https://'+ registry_host + ':'+str(registry_port) +'/v2/_catalog')
+    response = requests.get('https://'+ registry_host + ':'+str(registry_port) +'/v2/_catalog', Verify=False)
 
     if response.status_code != 200:
-        print (str(response.status_code) + " Registry API CAll unsuccessful to " + registry_host + ':'+str(registry_port), Verify=False)
+        print (str(response.status_code) + " Registry API CAll unsuccessful to " + registry_host + ':'+str(registry_port))
         print (" Raw Docker Error Message is  " + response.text )
         exit(1)
     #elif response == null:

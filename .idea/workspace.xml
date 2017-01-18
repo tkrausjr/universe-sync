@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="fa0759c8-0903-4ec8-9ac2-a181840cd95e" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/universe-sync-from-image.py" afterPath="$PROJECT_DIR$/universe-sync-from-image.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="universe-sync.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -27,8 +26,8 @@
       <file leaf-file-name="universe-sync-from-image.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/universe-sync-from-image.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.54371">
-              <caret line="28" column="135" selection-start-line="28" selection-start-column="135" selection-end-line="28" selection-end-column="135" />
+            <state vertical-scroll-proportion="0.79957354">
+              <caret line="25" column="108" selection-start-line="25" selection-start-column="108" selection-end-line="25" selection-end-column="108" />
               <folding>
                 <element signature="e#25#38#0" expanded="true" />
               </folding>
@@ -688,8 +687,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/universe-sync-from-image.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.54371">
-          <caret line="28" column="135" selection-start-line="28" selection-start-column="135" selection-end-line="28" selection-end-column="135" />
+        <state vertical-scroll-proportion="0.79957354">
+          <caret line="25" column="108" selection-start-line="25" selection-start-column="108" selection-end-line="25" selection-end-column="108" />
           <folding>
             <element signature="e#25#38#0" expanded="true" />
           </folding>
