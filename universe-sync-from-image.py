@@ -5,6 +5,7 @@ import requests
 import sys
 
 # Constants
+remove_images=True # Will remove local copies of images already transferred to dst_registry_host
 src_registry_host = 'localhost'
 src_registry_port = 5000
 docker_client = docker.from_env()
@@ -65,7 +66,7 @@ def pull_images(registry_host,registry_port,src_manifests,client):
             print('Image in DICT = '+ image)
             print ('TAG in DICT = ' + imagetag)
             print("Pulling Image . . ." + image)
-            client.images.pull(registry_host + ':'+str(registry_port) +'/' + image, tag=imagetag)
+            client.images.pull(registry_host + ':'+str(registry_port) +'/' + image, tag=imagetag,stream=True)
             fullImageId = registry_host + ":" + str(registry_port) + "/" + image + ":" + imagetag
             print("Full Image ID = " + fullImageId)
             images.append(fullImageId)
@@ -113,9 +114,29 @@ def push_images(new_images,client):
         print ("**SPLIT DST srcImageTag = " +dstImageTag)
         for line in client.images.push(fullImageRef,stream=True,insecure_registry=True):
             print (line)
-
+        if remove_images==True:
+            remove_images(fullImageRef,client,src_registry_host,src_registry_port)
     return new_images
 
+def remove_images(fullImageRef,client,src_registry_host,src_registry_port):
+    '''
+    CURRENTLY NOT WORKING -- TEST in INTERACTIVE MODE !!!
+    :param fullImageRef:
+    :param client:
+    :param src_registry_host:
+    :param src_registry_port:
+    :return:
+    '''
+    fullImageRefSplit = fullImageRef.split('/')
+    dstimageHost= fullImageRefSplit[0]
+    dstfullImage = fullImageRefSplit[1]
+
+    # Remove Local Image Tagged for the Source Registry
+    client.api.remove_image(fullImageRef,force=True)
+
+    # Remove Local Image Tagged for the Target Registry
+    client.api.remove_image(src_registry_host+ ':'+ str(src_registry_port) + '/' + dstfullImage, force=True)
+    return
 
 if __name__ == "__main__":
 
