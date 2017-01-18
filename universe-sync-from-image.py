@@ -28,10 +28,9 @@ def get_registry_images(registry_host,registry_port):
     if response.status_code != 200:
         print (str(response.status) + " Registry API CAll unsuccessful to " + registry_host + ':'+registry_port)
         exit(1)
-    elif response == null:        
-        print ("No response. Source Registry Server is probably not available !")        
-        sys.exit(1)
-    
+    elif response == null:
+        print ("No response. Source Registry Server is probably not available !")
+        sys.exit(1)    
     elif responseJson['repositories'] ==[]:
         print ("No Images/Repositories found on Source Registry")
         sys.exit(1)
