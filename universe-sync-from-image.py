@@ -26,7 +26,7 @@ def get_registry_images(registry_host,registry_port):
     response = requests.get('https://'+ registry_host + ':'+str(registry_port) +'/v2/_catalog')
 
     if response.status_code != 200:
-        print (str(response.status_code) + " Registry API CAll unsuccessful to " + registry_host + ':'+str(registry_port))
+        print (str(response.status_code) + " Registry API CAll unsuccessful to " + registry_host + ':'+str(registry_port), Verify=False)
         print (" Raw Docker Error Message is  " + response.text )
         exit(1)
     #elif response == null:
@@ -50,7 +50,7 @@ def get_registry_manifests(registry_host,registry_port,repos):
     registry_manifest_dict ={}
     print("get_registry_manifests Function")
     for i in repos:
-            response = requests.get('https://'+ registry_host + ':'+str(registry_port) +'/v2/'+ i + '/tags/list')
+            response = requests.get('https://'+ registry_host + ':'+str(registry_port) +'/v2/'+ i + '/tags/list', Verify=False)
             responseJson=response.json()
             print("Manifests Response " + str(responseJson))
             name = responseJson['name']
