@@ -25,11 +25,11 @@ def get_registry_images(registry_host,registry_port):
     response = requests.get('http://'+ registry_host + ':'+str(registry_port) +'/v2/_catalog')
 
     if response.status_code != 200:
-        print (str(response.status) + " Registry API CAll unsuccessful to " + registry_host + ':'+registry_port)
+        print (str(response.status_code) + " Registry API CAll unsuccessful to " + registry_host + ':'+registry_port)
         exit(1)
-    elif response == null:
-        print ("No response. Source Registry Server is probably not available !")
-        sys.exit(1)    
+    #elif response == null:
+    #    print ("No response. Source Registry Server is probably not available !")
+    #    sys.exit(1)    
     else:
         responseJson=response.json()
         print("Response RAW JSON for Registry is" + str(responseJson))
