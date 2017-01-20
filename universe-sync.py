@@ -1,6 +1,5 @@
 __author__ = 'tkraus-m'
 
-import docker
 import requests
 import sys
 import subprocess
@@ -14,7 +13,6 @@ src_registry_host = 'localhost'
 src_registry_port = 5000
 src_http_port = 8083
 src_insecure = True
-
 pulled_images =[]
 
 dst_registry_proto = 'http://'
@@ -22,16 +20,14 @@ dst_registry_host = '192.168.62.128'
 dst_registry_port = 5000
 dst_insecure = True
 
-def start_universe(universe_image):
+def load_universe(universe_image):
     print('--Loading Mesosphere/Universe Docker Image '+universe_image)
     command = ['docker', 'load', '-i' + universe_image]
     subprocess.check_call(command)
 
-    print('--Starting Mesosphere/Universe Docker Image '+universe_image)
+def start_universe(universe_image,command):
 
-    command = ['docker', 'run', '-d', '-p','5000:5000', '-e','REGISTRY_HTTP_TLS_CERTIFICATE=/certs/domain.crt',
-               '-e', 'REGISTRY_HTTP_TLS_KEY=/certs/domain.key', 'mesosphere/universe',
-               'registry', 'serve', '/etc/docker/registry/config.yml']
+    print('--Starting Mesosphere/Universe Docker Image '+universe_image)
     subprocess.Popen(command).wait()
 
 def get_registry_images(registry_proto,registry_host,registry_port):
@@ -110,7 +106,12 @@ def remove_images(fullImageRef,client,src_registry_host,src_registry_port):
     return
 
 if __name__ == "__main__":
-    start_universe(universe_image)
+
+    registry_command = ['docker', 'run', '-d', '-p','5000:5000', '-e','REGISTRY_HTTP_TLS_CERTIFICATE=/certs/domain.crt',
+               '-e', 'REGISTRY_HTTP_TLS_KEY=/certs/domain.key', 'mesosphere/universe',
+               'registry', 'serve', '/etc/docker/registry/config.yml']
+    start_universe(universe_image,registry_command)
+
     # DOCKER REPO IMAGE MOVE from UNIVERSE IMAGE to DEST REGISTRY
     src_repos = get_registry_images(src_registry_proto,src_registry_host,src_registry_port)
     src_manifests = get_registry_manifests(src_registry_proto,src_registry_host,src_registry_port,src_repos)
@@ -132,6 +133,14 @@ if __name__ == "__main__":
 
     except (subprocess.CalledProcessError, urllib.error.HTTPError):
             print('MISSING Docker Images: {}')
+
+
+    # HTTP ARTIFACT WORK
+
+    http_docker_command = ['docker', 'run', '-d', '-p','8082:80', 'mesosphere/universe',
+               'nginx', '-g', '"daemon off;"']
+    start_universe(universe_image,http_docker_command)
+
 
 
 
