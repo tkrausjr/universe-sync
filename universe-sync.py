@@ -32,7 +32,6 @@ dst_registry_proto = 'http://'
 dst_registry_host = '192.168.62.128'
 dst_registry_port = 5000
 
-dst_http_type = 'nexus'
 dst_http_host = 'targetserver.targetdomain.com/repositories'
 dst_http_port = 80
 dst_http_protocol ='https://'
@@ -121,15 +120,18 @@ def push_images(new_image,docker_target):
         subprocess.check_call(command)
 
 def copy_http_data(working_directory,new_universe_json_file):
-    print("--Copying Universe HTTP to hosts Data Directory ")
+    print("--Copying Universe HTTP to hosts Working Directory ")
     command = ['docker', 'cp', 'universe-registry:/usr/share/nginx/html/', working_directory]
     subprocess.check_output(command)
 
-    command = ['cp', working_directory + 'html/universe.json', working_directory +'html/'+ new_universe_json_file]
+    updated_universe_json_file = (working_directory +'html/'+ new_universe_json_file)
+    command = ['cp', working_directory + 'html/universe.json', updated_universe_json_file ]
     subprocess.check_output(command)
+    return updated_universe_json_file  # Return updated reference to the now modified Universe.json file
 
-def transform_universe_json(src_string,dst_string,working_directory,new_universe_json_file):
-    for line in fileinput.input(working_directory+'html/'+ new_universe_json_file, inplace=True):
+
+def transform_universe_json(src_string,dst_string,working_directory,updated_universe_json_file):
+    for line in fileinput.input(updated_universe_json_file, inplace=True):
         # inside this loop the STDOUT will be redirected to the file
         # the comma after each print statement is needed to avoid double line breaks
         print(line.replace(src_string,dst_string)),
@@ -151,6 +153,11 @@ def return_http_artifacts(working_directory):
                 http_artifacts.append(os.path.join(subdir, file))
                 #print("Filenames are  " + file)
     return http_artifacts
+
+def upload_http_nexus(http_artifacts,dst_http_str):
+    for file in http_artifacts:
+        upload_file={'upload_file' : open(file,'rb')}
+
 
 def clean_up_host():
     command = ['docker', 'rm', '-f', 'universe-registry']
@@ -197,7 +204,7 @@ if __name__ == "__main__":
     # HTTP Artifacts
     # Copy out the entire nginx / html directory to data directory where script is being run.
 
-    copy_http_data(working_directory,new_universe_json_file)
+    updated_universe_json_file = copy_http_data(working_directory,new_universe_json_file)
 
     # HTTP Artifacts - Rewrite the universe.json file with correct Docker and HTTP URL's
     # 3 Lines below are unnecessary if using SED and
@@ -216,19 +223,26 @@ if __name__ == "__main__":
     print("Destination HTTP String = " + dst_http_str)
     print("")
 
-    # new_universe_json = src_universe_json
-    transform_universe_json(src_registry_str,dst_registry_str,working_directory,new_universe_json_file)
-    transform_universe_json(src_http_str,dst_http_str,working_directory,new_universe_json_file)
+    transform_universe_json(src_registry_str,dst_registry_str,working_directory,updated_universe_json_file)
+    transform_universe_json(src_http_str,dst_http_str,working_directory,updated_universe_json_file)
 
-    with open(working_directory + 'html/tk-universe.json') as json_data:
+    with open(updated_universe_json_file) as json_data:
         new_universe_json = json.load(json_data)
         print("Updated Universe JSON = " + str(new_universe_json))
-    #write_new_universe_json(new_universe_json)
 
 
-    #Temporarily put here for testing
+    # Return a LIST of all Absolute File References for upload to HTTP Repository
     http_artifacts = return_http_artifacts(working_directory)
     print("Cleaned up HTTP Artifacts are " + str(http_artifacts))
+
+
+    print ("\n Configured HTTP Repository is " + http_target)
+    if http_target == 'nexus':
+        upload_http_nexus(http_artifacts,dst_http_str)
+    elif http_target == 'artifactory':
+        upload_http_artifactory()
+    else:
+        print("Configured HTTP Repsitory is not supported -- " + http_target)
 
     # Clean up Containers and HTTP Data Directory
     # clean_up_host()
