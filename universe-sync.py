@@ -128,12 +128,11 @@ def copy_http_data(working_directory,new_universe_json_file):
     command = ['cp', working_directory + 'html/universe.json', working_directory +'html/'+ new_universe_json_file]
     subprocess.check_output(command)
 
-def transform_universe_json(src_registry_str,dst_registry_str,src_http_str,dst_http_str,working_directory,new_universe_json_file):
+def transform_universe_json(src_string,dst_string,working_directory,new_universe_json_file):
     for line in fileinput.input(working_directory+'html/'+ new_universe_json_file, inplace=True):
         # inside this loop the STDOUT will be redirected to the file
         # the comma after each print statement is needed to avoid double line breaks
-        print(line.replace(src_registry_str,dst_registry_str)),
-
+        print(line.replace(src_string,dst_string)),
 
 def write_new_universe_json(new_universe_json):
     with open('./data/tk-universe.json', 'w') as outfile:
@@ -218,7 +217,8 @@ if __name__ == "__main__":
     print("")
 
     # new_universe_json = src_universe_json
-    transform_universe_json(src_registry_str,dst_registry_str,src_http_str,dst_http_str,working_directory,new_universe_json_file)
+    transform_universe_json(src_registry_str,dst_registry_str,working_directory,new_universe_json_file)
+    transform_universe_json(src_http_str,dst_http_str,working_directory,new_universe_json_file)
 
     with open(working_directory + 'html/tk-universe.json') as json_data:
         new_universe_json = json.load(json_data)
