@@ -3,22 +3,41 @@ __author__ = 'tkraus-m'
 import requests
 import sys
 import subprocess
+import time
+import json
+import os
+import fileinput
 
 # Constants
 
+# Set the Target for Docker Iamges
+# Valid options are 'quay' and 'docker_registry'
+
+docker_target = 'quay'
+# Set the Target for HTTP Artifacts including the actual Universe JSON definition itself
+# Valid options are 'nginx' and 'nexus'
+http_target = 'nexus'
+
 remove_images=True # Will remove local copies of images already transferred to dst_registry_host
-universe_image = '/Users/tkraus/gitHub/universe-sync/test-local-universe-01-18-17-v2.tar'
+universe_image = '/Users/tkraus/test-local-universe-01-23-17-v1.tar'
 src_registry_proto = 'https://'
 src_registry_host = 'localhost'
 src_registry_port = 5000
-src_http_port = 8083
+src_http_protocol = 'http://'
+src_http_port = 8082
 src_insecure = True
 pulled_images =[]
 
 dst_registry_proto = 'http://'
 dst_registry_host = '192.168.62.128'
 dst_registry_port = 5000
-dst_insecure = True
+
+dst_http_type = 'nexus'
+dst_http_host = 'targetserver.targetdomain.com/repositories'
+dst_http_port = 80
+dst_http_protocol ='https://'
+new_universe_json_file = 'tk-universe.json'
+working_directory = '/Users/tkraus/gitHub/universe-sync/data/'
 
 def load_universe(universe_image):
     print('--Loading Mesosphere/Universe Docker Image '+universe_image)
@@ -28,7 +47,12 @@ def load_universe(universe_image):
 def start_universe(universe_image,command):
 
     print('--Starting Mesosphere/Universe Docker Image '+universe_image)
+
     subprocess.Popen(command).wait()
+    # subprocess.check_call(command,stdout=None,stderr=Exception)
+    print('--Successfully Started Mesosphere/Universe Docker Image '+universe_image)
+    print('--Waiting 5 Seconds for Container Startup')
+    time.sleep(5)
 
 def get_registry_images(registry_proto,registry_host,registry_port):
     print("--Getting Mesosphere/Universe Repositories ")
@@ -86,32 +110,70 @@ def tag_images(image,imagetag,fullImageId,dst_registry_host,dst_registry_port):
     subprocess.check_call(command)
     return command[3]
 
-def push_images(new_image):
-    print("--Pushing Image "+new_image)
-    command = ['docker', 'push', new_image]
+def push_images(new_image,docker_target):
+    if docker_target == 'docker_registry':
+        print("--Pushing Image to Docker Registry - "+new_image)
+        command = ['docker', 'push', new_image]
+        subprocess.check_call(command)
+    if docker_target == 'quay':
+        print("--Pushing Image to Quay - "+new_image)
+        command = ['docker', 'push', new_image]
+        subprocess.check_call(command)
+
+def copy_http_data(working_directory,new_universe_json_file):
+    print("--Copying Universe HTTP to hosts Data Directory ")
+    command = ['docker', 'cp', 'universe-registry:/usr/share/nginx/html/', working_directory]
+    subprocess.check_output(command)
+
+    command = ['cp', working_directory + 'html/universe.json', working_directory +'html/'+ new_universe_json_file]
+    subprocess.check_output(command)
+
+def transform_universe_json(src_registry_str,dst_registry_str,src_http_str,dst_http_str,working_directory,new_universe_json_file):
+    for line in fileinput.input(working_directory+'html/'+ new_universe_json_file, inplace=True):
+        # inside this loop the STDOUT will be redirected to the file
+        # the comma after each print statement is needed to avoid double line breaks
+        print(line.replace(src_registry_str,dst_registry_str)),
+
+
+def write_new_universe_json(new_universe_json):
+    with open('./data/tk-universe.json', 'w') as outfile:
+        json.dump(new_universe_json, outfile)
+
+def return_http_artifacts(working_directory):
+    http_artifacts = []
+    os.chdir(working_directory)
+    for subdir, dirs, files in os.walk(working_directory):
+        for file in files:
+            if file.startswith("repo-") or file.startswith(".") or file.startswith("index.html") or file.startswith("domain.crt"):
+                print("Found files to skip = " + file)
+
+            else:
+                print("Files are " +os.path.join(subdir, file))
+                http_artifacts.append(os.path.join(subdir, file))
+                #print("Filenames are  " + file)
+    return http_artifacts
+
+def clean_up_host():
+    command = ['docker', 'rm', '-f', 'universe-registry']
     subprocess.check_call(command)
 
-
-def remove_images(fullImageRef,client,src_registry_host,src_registry_port):
-
-    fullImageRefSplit = fullImageRef.split('/')
-    dstimageHost= fullImageRefSplit[0]
-    dstfullImage = fullImageRefSplit[1]
-
-    # Remove Local Image Tagged for the Source Registry
-    client.api.remove_image(fullImageRef,force=True)
-
-    # Remove Local Image Tagged for the Target Registry
-    client.api.remove_image(src_registry_host+ ':'+ str(src_registry_port) + '/' + dstfullImage, force=True)
-    return
+    command = ['rm', '-rf', './data/*']
+    subprocess.check_call(command)
 
 if __name__ == "__main__":
-
-    registry_command = ['docker', 'run', '-d', '-p','5000:5000', '-e','REGISTRY_HTTP_TLS_CERTIFICATE=/certs/domain.crt',
+    '''
+    #Temporarily put here for testing to
+    http_artifacts = return_http_artifacts(working_directory)
+    print("Cleaned up HTTP Artifacts are " + str(http_artifacts))
+    exit(1)
+    '''
+    '''
+    load_universe(universe_image)
+    registry_command = ['docker', 'run', '-d', '--name', 'universe-registry', '-v', '/usr/share/nginx/html/','-p','5000:5000', '-e','REGISTRY_HTTP_TLS_CERTIFICATE=/certs/domain.crt',
                '-e', 'REGISTRY_HTTP_TLS_KEY=/certs/domain.key', 'mesosphere/universe',
                'registry', 'serve', '/etc/docker/registry/config.yml']
     start_universe(universe_image,registry_command)
-
+    '''
     # DOCKER REPO IMAGE MOVE from UNIVERSE IMAGE to DEST REGISTRY
     src_repos = get_registry_images(src_registry_proto,src_registry_host,src_registry_port)
     src_manifests = get_registry_manifests(src_registry_proto,src_registry_host,src_registry_port,src_repos)
@@ -125,23 +187,49 @@ if __name__ == "__main__":
             pull_images(fullImageId)
             new_image=tag_images(image,imagetag,fullImageId,dst_registry_host,dst_registry_port)
             print("Destination Docker Image to Push = " + new_image)
-            push_images(new_image)
+            push_images(new_image,docker_target)
             new_images.append(new_image)
             print("Finished with Image ("+image+':'+imagetag+")\n")
         print("\n \n New Images uploaded to "+dst_registry_host+':'+str(dst_registry_port)+" are " + str(new_images))
 
-
     except (subprocess.CalledProcessError, urllib.error.HTTPError):
             print('MISSING Docker Images: {}')
 
+    # HTTP Artifacts
+    # Copy out the entire nginx / html directory to data directory where script is being run.
 
-    # HTTP ARTIFACT WORK
+    copy_http_data(working_directory,new_universe_json_file)
 
-    http_docker_command = ['docker', 'run', '-d', '-p','8082:80', 'mesosphere/universe',
-               'nginx', '-g', '"daemon off;"']
-    start_universe(universe_image,http_docker_command)
+    # HTTP Artifacts - Rewrite the universe.json file with correct Docker and HTTP URL's
+    # 3 Lines below are unnecessary if using SED and
+    with open(working_directory + 'html/universe.json') as json_data:
+        src_universe_json = json.load(json_data)
+        print("Source Universe JSON = " + str(src_universe_json))
+
+    src_registry_str = src_registry_host +':'+ str(src_registry_port)
+    dst_registry_str = dst_registry_host +':'+ str(dst_registry_port)
+    src_http_str = src_http_protocol + src_registry_host +':'+ str(src_http_port)
+    dst_http_str = dst_http_protocol + dst_http_host +':'+ str(dst_http_port)
+
+    print("\n Source Registry String = " + src_registry_str)
+    print("Destination Registry String = " + dst_registry_str)
+    print("Source HTTP String = " + src_http_str)
+    print("Destination HTTP String = " + dst_http_str)
+    print("")
+
+    # new_universe_json = src_universe_json
+    transform_universe_json(src_registry_str,dst_registry_str,src_http_str,dst_http_str,working_directory,new_universe_json_file)
+
+    with open(working_directory + 'html/tk-universe.json') as json_data:
+        new_universe_json = json.load(json_data)
+        print("Updated Universe JSON = " + str(new_universe_json))
+    #write_new_universe_json(new_universe_json)
 
 
+    #Temporarily put here for testing
+    http_artifacts = return_http_artifacts(working_directory)
+    print("Cleaned up HTTP Artifacts are " + str(http_artifacts))
 
-
+    # Clean up Containers and HTTP Data Directory
+    # clean_up_host()
     print("\n Program Finished \n" )
