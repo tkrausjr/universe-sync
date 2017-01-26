@@ -31,10 +31,14 @@ pulled_images =[]
 dst_registry_proto = 'http://'
 dst_registry_host = '192.168.62.128'
 dst_registry_port = 5000
+dst_registry_namespace ='universe'
 
-dst_http_host = 'targetserver.targetdomain.com/repositories'
-dst_http_port = 80
-dst_http_protocol ='https://'
+dst_http_protocol ='http://'
+dst_http_host = '192.168.62.128'
+dst_http_port = 8081
+dst_http_namespace = 'repository/GCP-SITE/ver1'
+dst_http_repository_user = 'admin'
+dst_http_repository_pass = 'admin123'
 new_universe_json_file = 'tk-universe.json'
 working_directory = '/Users/tkraus/gitHub/universe-sync/data/'
 
@@ -100,12 +104,21 @@ def format_image_name(host, name):
 
     return '{}/{}'.format(host, name)
 
+def new_format_image_name(dst_registry_host,dst_registry_port,dst_registry_namespace,image):
+    print("Src Imagename is " + image)
+    if '/' in image:
+        newimage='{}:{}/{}/{}'.format(dst_registry_host,dst_registry_port,dst_registry_namespace,image.split("/")[1])
+        print("New image is " + newimage)
+        return newimage
+
+    return image
+
 def tag_images(image,imagetag,fullImageId,dst_registry_host,dst_registry_port):
 
-    print("--Tagging Image "+fullImageId + " for Destination Registry "+dst_registry_host+':'+str(dst_registry_port))
-
+    print("--Tagging Universe Image "+fullImageId + " for Destination Registry "+dst_registry_host+':'+str(dst_registry_port))
     command = ['docker', 'tag', fullImageId,
-        format_image_name(dst_registry_host+':'+str(dst_registry_port),image)]
+        new_format_image_name(dst_registry_host,dst_registry_port,dst_registry_namespace,image)]
+        # format_image_name(dst_registry_host+':'+str(dst_registry_port),image)]
     subprocess.check_call(command)
     return command[3]
 
@@ -151,13 +164,27 @@ def return_http_artifacts(working_directory):
             else:
                 print("Files are " +os.path.join(subdir, file))
                 http_artifacts.append(os.path.join(subdir, file))
-                #print("Filenames are  " + file)
     return http_artifacts
 
-def upload_http_nexus(http_artifacts,dst_http_str):
+def upload_http_nexus(dst_http_protocol,dst_http_host,dst_http_port,dst_http_namespace,http_artifacts):
+    baseurl ='{}{}:{}/{}/'.format(dst_http_protocol,dst_http_host,dst_http_port,dst_http_namespace)
+    print("URL for request is " + baseurl)
     for file in http_artifacts:
         upload_file={'upload_file' : open(file,'rb')}
+        print("Working on file " + file)
+        pathurl=(file.split("html/")[1])
+        response = requests.put('{}{}'.format(baseurl,pathurl), files=upload_file, auth=(dst_http_repository_user,dst_http_repository_pass))
+        print (response.raw)
+        print (response.request)
+        print (str(response.status_code))
 
+
+        if response.status_code != 201:
+            print (str(response.status_code) + " Registry API CAll unsuccessful to " + baseurl)
+            print(response.content)
+            print(response.headers)
+            print ("----Raw Nexus Error Message is  " + response.text )
+            exit(1)
 
 def clean_up_host():
     command = ['docker', 'rm', '-f', 'universe-registry']
@@ -215,13 +242,12 @@ if __name__ == "__main__":
     src_registry_str = src_registry_host +':'+ str(src_registry_port)
     dst_registry_str = dst_registry_host +':'+ str(dst_registry_port)
     src_http_str = src_http_protocol + src_registry_host +':'+ str(src_http_port)
-    dst_http_str = dst_http_protocol + dst_http_host +':'+ str(dst_http_port)
+    dst_http_str = dst_http_protocol + dst_http_host
 
     print("\n Source Registry String = " + src_registry_str)
     print("Destination Registry String = " + dst_registry_str)
     print("Source HTTP String = " + src_http_str)
     print("Destination HTTP String = " + dst_http_str)
-    print("")
 
     transform_universe_json(src_registry_str,dst_registry_str,working_directory,updated_universe_json_file)
     transform_universe_json(src_http_str,dst_http_str,working_directory,updated_universe_json_file)
@@ -236,9 +262,10 @@ if __name__ == "__main__":
     print("Cleaned up HTTP Artifacts are " + str(http_artifacts))
 
 
+    #Note tested yet not working - needs some work
     print ("\n Configured HTTP Repository is " + http_target)
     if http_target == 'nexus':
-        upload_http_nexus(http_artifacts,dst_http_str)
+        upload_http_nexus(dst_http_protocol,dst_http_host,dst_http_port,dst_http_namespace,http_artifacts)
     elif http_target == 'artifactory':
         upload_http_artifactory()
     else:
@@ -247,3 +274,5 @@ if __name__ == "__main__":
     # Clean up Containers and HTTP Data Directory
     # clean_up_host()
     print("\n Program Finished \n" )
+
+
