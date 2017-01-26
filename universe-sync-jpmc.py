@@ -22,11 +22,14 @@ remove_images=True # Will remove local copies of images already transferred to d
 universe_image = '/Users/tkraus/test-local-universe-01-23-17-v1.tar'
 src_registry_proto = 'https://'
 src_registry_host = 'localhost'
-src_registry_port = 5000
+src_registry_port = 5005
 src_http_protocol = 'http://'
 src_http_port = 8082
 src_insecure = True
 pulled_images =[]
+
+proxies = {'https_proxy' : 'https_proxy=gieproxy.gielab.jpmchase.net:8080'}
+https_proxy ='https_proxy=gieproxy.gielab.jpmchase.net:8080'
 
 dst_registry_proto = 'http://'
 dst_registry_host = '192.168.62.128'
@@ -44,7 +47,7 @@ working_directory = '/Users/tkraus/gitHub/universe-sync/data/'
 
 def load_universe(universe_image):
     print('--Loading Mesosphere/Universe Docker Image '+universe_image)
-    command = ['docker', 'load', '-i' + universe_image]
+    command = ['sudo','docker', 'load', '-i' + universe_image]
     subprocess.check_call(command)
 
 def start_universe(universe_image,command):
@@ -59,7 +62,7 @@ def start_universe(universe_image,command):
 
 def get_registry_images(registry_proto,registry_host,registry_port):
     print("--Getting Mesosphere/Universe Repositories ")
-    response = requests.get(registry_proto + registry_host + ':'+str(registry_port) +'/v2/_catalog', verify=False)
+    response = requests.get(registry_proto + registry_host + ':'+str(registry_port) +'/v2/_catalog', proxies=proxies, verify=False)
 
     if response.status_code != 200:
         print (str(response.status_code) + " Registry API CAll unsuccessful to " + registry_host + ':'+str(registry_port))
@@ -92,7 +95,7 @@ def get_registry_manifests(registry_proto,registry_host,registry_port,repos):
 
 def pull_images(name):
     print('--Pulling docker image: {}'.format(name))
-    command = ['docker', 'pull', name]
+    command = ['sudo', 'docker', 'pull', name]
 
     subprocess.check_call(command)
 
@@ -187,7 +190,7 @@ def upload_http_nexus(dst_http_protocol,dst_http_host,dst_http_port,dst_http_nam
             exit(1)
 
 def clean_up_host():
-    command = ['docker', 'rm', '-f', 'universe-registry']
+    command = ['sudo', 'docker', 'rm', '-f', 'universe-registry']
     subprocess.check_call(command)
 
     command = ['rm', '-rf', './data/*']
@@ -197,7 +200,7 @@ if __name__ == "__main__":
     
     # Temporarily removed line below
     # load_universe(universe_image)
-    registry_command = ['docker', 'run', '-d', '--name', 'universe-registry', '-v', '/usr/share/nginx/html/','-p','5000:5000', '-e','REGISTRY_HTTP_TLS_CERTIFICATE=/certs/domain.crt',
+    registry_command = ['sudo', 'docker', 'run', '-d', '--name', 'universe-registry', '-v', '/usr/share/nginx/html/','-p','5005:5000', '-e','REGISTRY_HTTP_TLS_CERTIFICATE=/certs/domain.crt',
                '-e', 'REGISTRY_HTTP_TLS_KEY=/certs/domain.key', 'mesosphere/universe',
                'registry', 'serve', '/etc/docker/registry/config.yml']
     start_universe(universe_image,registry_command)
