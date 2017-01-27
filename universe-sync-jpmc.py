@@ -224,7 +224,7 @@ if __name__ == "__main__":
     # DOCKER REPO IMAGE MOVE from UNIVERSE IMAGE to DEST REGISTRY
     src_repos = get_registry_images(src_registry_proto,src_registry_host,src_registry_port)
     src_manifests = get_registry_manifests(src_registry_proto,src_registry_host,src_registry_port,src_repos)
-
+    '''
     try:
         new_images = []
         for image,imagetag in src_manifests.items():
@@ -241,7 +241,7 @@ if __name__ == "__main__":
 
     except (subprocess.CalledProcessError, urllib.error.HTTPError):
             print('MISSING Docker Images: {}')
-
+    '''
     # HTTP Artifacts
     # Copy out the entire nginx / html directory to data directory where script is being run.
 
