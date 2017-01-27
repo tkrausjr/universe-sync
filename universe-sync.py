@@ -36,7 +36,7 @@ dst_registry_namespace ='universe'
 dst_http_protocol ='http://'
 dst_http_host = '192.168.62.128'
 dst_http_port = 8081
-dst_http_namespace = 'repository/GCP-SITE/ver1'
+dst_http_namespace = 'repository/GCP-SITE/test'
 dst_http_repository_user = 'admin'
 dst_http_repository_pass = 'admin123'
 new_universe_json_file = 'tk-universe.json'
@@ -49,7 +49,7 @@ def load_universe(universe_image):
 
 def start_universe(universe_image,command):
 
-    print('--Starting Mesosphere/Universe Docker Image '+universe_image)
+    print('--Starting Mesosphere/Universe Docker Image ')
 
     subprocess.Popen(command).wait()
     # subprocess.check_call(command,stdout=None,stderr=Exception)
@@ -167,24 +167,40 @@ def return_http_artifacts(working_directory):
     return http_artifacts
 
 def upload_http_nexus(dst_http_protocol,dst_http_host,dst_http_port,dst_http_namespace,http_artifacts):
+
     baseurl ='{}{}:{}/{}/'.format(dst_http_protocol,dst_http_host,dst_http_port,dst_http_namespace)
-    print("URL for request is " + baseurl)
     for file in http_artifacts:
+        print('\n ********** WORKING ON A NEW FILE IN THE LOOP*********')
         upload_file={'upload_file' : open(file,'rb')}
         print("Working on file " + file)
         pathurl=(file.split("html/")[1])
-        response = requests.put('{}{}'.format(baseurl,pathurl), files=upload_file, auth=(dst_http_repository_user,dst_http_repository_pass))
+        print("First pathurl = "+pathurl)
+        if len(pathurl.rsplit('/',1)) > 1:
+            url = '{}{}/'.format(baseurl,pathurl.rsplit('/',1)[0 ])
+            print("+++++ STEP 2 needed, url= "+url)
+
+        else:
+            url = baseurl
+            print("+++++ STEP 2 NOT needed, baseurl= "+url)
+
+
+        response = requests.put(url, files=upload_file, auth=(dst_http_repository_user,dst_http_repository_pass))
         print (response.raw)
         print (response.request)
         print (str(response.status_code))
 
 
         if response.status_code != 201:
-            print (str(response.status_code) + " Registry API CAll unsuccessful to " + baseurl)
+            print (str(response.status_code) + " Registry API CAll unsuccessful to " + url)
             print(response.content)
             print(response.headers)
             print ("----Raw Nexus Error Message is  " + response.text )
             exit(1)
+        else:
+            print (str(response.status_code) + " Registry API CAll SUCCESS to " + url)
+            print(response.content)
+            print(response.headers)
+            print ("----Raw Nexus Error Message is  " + response.text )
 
 def clean_up_host():
     command = ['docker', 'rm', '-f', 'universe-registry']
