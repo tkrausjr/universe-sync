@@ -30,7 +30,7 @@ pulled_images =[]
 
 http_proxy ='gieproxy.gielab.jpmchase.net:8080'
 https_proxy = http_proxy
-proxies = {"http : http_proxy, "https" : https_proxy}
+proxies = {"http" : http_proxy, "https" : https_proxy}
 
 dst_registry_proto = 'http://'
 dst_registry_host = '192.168.62.128'
