@@ -178,7 +178,7 @@ def upload_http_nexus(dst_http_protocol,dst_http_host,dst_http_port,dst_http_nam
     baseurl ='{}{}:{}/{}/'.format(dst_http_protocol,dst_http_host,dst_http_port,dst_http_namespace)
     for file in http_artifacts:
         print('\n ********** WORKING ON A NEW FILE IN THE LOOP*********\n' + file)
-        upload_file={file : open(file,'rb')}
+        upload_file={'file' : open(file,'rb')}
         pathurl=(file.split("html/")[1])
         print("First pathurl = "+pathurl)
         if len(pathurl.rsplit('/',1)) > 1:
