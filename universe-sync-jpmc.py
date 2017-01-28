@@ -28,8 +28,9 @@ src_http_port = 8082
 src_insecure = True
 pulled_images =[]
 
-proxies = {'https_proxy' : 'https_proxy=gieproxy.gielab.jpmchase.net:8080'}
-https_proxy ='https_proxy=gieproxy.gielab.jpmchase.net:8080'
+http_proxy ='gieproxy.gielab.jpmchase.net:8080'
+https_proxy = http_proxy
+proxies = {"http : http_proxy, "https" : https_proxy}
 
 dst_registry_proto = 'http://'
 dst_registry_host = '192.168.62.128'
@@ -140,6 +141,9 @@ def copy_http_data(working_directory,new_universe_json_file):
     command = ['docker', 'cp', 'universe-registry:/usr/share/nginx/html/', working_directory]
     subprocess.check_output(command)
 
+    command = ['sudo', 'chown', '-R', 'a_ansible:users', working_directory]
+    subprocess.check_output(command)
+       
     updated_universe_json_file = (working_directory +'html/'+ new_universe_json_file)
     command = ['cp', working_directory + 'html/universe.json', updated_universe_json_file ]
     subprocess.check_output(command)
@@ -173,9 +177,8 @@ def upload_http_nexus(dst_http_protocol,dst_http_host,dst_http_port,dst_http_nam
 
     baseurl ='{}{}:{}/{}/'.format(dst_http_protocol,dst_http_host,dst_http_port,dst_http_namespace)
     for file in http_artifacts:
-        print('\n ********** WORKING ON A NEW FILE IN THE LOOP*********')
-        upload_file={'upload_file' : open(file,'rb')}
-        print("Working on file " + file)
+        print('\n ********** WORKING ON A NEW FILE IN THE LOOP*********\n' + file)
+        upload_file={'file' : open(file,'rb')}
         pathurl=(file.split("html/")[1])
         print("First pathurl = "+pathurl)
         if len(pathurl.rsplit('/',1)) > 1:
@@ -187,7 +190,7 @@ def upload_http_nexus(dst_http_protocol,dst_http_host,dst_http_port,dst_http_nam
             print("+++++ STEP 2 NOT needed, baseurl= "+url)
 
 
-        response = requests.put(url, files=upload_file, auth=(dst_http_repository_user,dst_http_repository_pass))
+        response = requests.put(url, files=upload_file, auth=(dst_http_repository_user,dst_http_repository_pass),proxies=proxies,verify=False)
         print (response.raw)
         print (response.request)
         print (str(response.status_code))
