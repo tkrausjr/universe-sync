@@ -176,7 +176,7 @@ def return_http_artifacts(working_directory):
 def upload_http_nexus(dst_http_protocol,dst_http_host,dst_http_port,dst_http_namespace,http_artifacts):
 
     baseurl ='{}{}:{}/{}/'.format(dst_http_protocol,dst_http_host,dst_http_port,dst_http_namespace)
-    for file in reversed(http_artifacts):
+    for file in http_artifacts:
         print('\n Working on file ' + file)
         upload_file={'file' : open(file,'rb')}
         pathurl=(file.split("html/")[1])
