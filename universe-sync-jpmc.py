@@ -184,14 +184,14 @@ def upload_http_nexus(dst_http_protocol,dst_http_host,dst_http_port,dst_http_nam
         if len(pathurl.rsplit('/',1)) > 1:
             url = '{}{}/'.format(baseurl,pathurl.rsplit('/',1)[0 ])
             print("+++++ STEP 2 needed, url= "+url)
-            response = requests.post(url, auth=(dst_http_repository_user,dst_http_repository_pass),proxies=proxies,verify=False)
+            #response = requests.post(url, auth=(dst_http_repository_user,dst_http_repository_pass),proxies=proxies,verify=False)
 
         else:
             url = baseurl
             print("+++++ STEP 2 NOT needed, baseurl= "+url)
 
-
-        response = requests.put(url, files=upload_file, auth=(dst_http_repository_user,dst_http_repository_pass),proxies=proxies,verify=False)
+        headers = {'Connection':'keep-alive','content-type': 'multipart/form-data'}
+        response = requests.put(url, files=upload_file, auth=(dst_http_repository_user,dst_http_repository_pass),proxies=proxies,headers=headers,verify=False)
         print (response.raw)
         print (response.request)
         print (str(response.status_code))
