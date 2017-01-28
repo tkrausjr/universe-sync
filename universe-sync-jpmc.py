@@ -40,7 +40,7 @@ dst_registry_namespace ='universe'
 dst_http_protocol ='https://'
 dst_http_host = 'repo.jpmchase.net'
 dst_http_port = '443'
-dst_http_namespace = 'maven/content/sites/GCP-SITE/scripts2'
+dst_http_namespace = 'maven/content/sites/GCP-SITE/scripts27'
 dst_http_repository_user = 'O665494'
 dst_http_repository_pass = 'Ah&i6Bzo1V'
 new_universe_json_file = 'tk-universe.json'
@@ -181,6 +181,7 @@ def upload_http_nexus(dst_http_protocol,dst_http_host,dst_http_port,dst_http_nam
         upload_file={'file' : open(file,'rb')}
         pathurl=(file.split("html/")[1])
         print("First pathurl = "+pathurl)
+        '''
         if len(pathurl.rsplit('/',1)) > 1:
             url = '{}{}/'.format(baseurl,pathurl.rsplit('/',1)[0 ])
             print("+++++ STEP 2 needed, url= "+url)
@@ -189,7 +190,8 @@ def upload_http_nexus(dst_http_protocol,dst_http_host,dst_http_port,dst_http_nam
         else:
             url = baseurl
             print("+++++ STEP 2 NOT needed, baseurl= "+url)
-
+        '''
+        url = '{}{}'.format(baseurl,pathurl)
         headers = {'Connection':'keep-alive','content-type': 'multipart/form-data'}
         response = requests.put(url, files=upload_file, auth=(dst_http_repository_user,dst_http_repository_pass),proxies=proxies,headers=headers,verify=False)
         print (response.raw)
