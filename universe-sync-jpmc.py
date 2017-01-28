@@ -40,7 +40,7 @@ dst_registry_namespace ='universe'
 dst_http_protocol ='https://'
 dst_http_host = 'repo.jpmchase.net'
 dst_http_port = '443'
-dst_http_namespace = 'maven/content/sites/GCP-SITE/scripts1'
+dst_http_namespace = 'maven/content/sites/GCP-SITE/scripts2'
 dst_http_repository_user = 'O665494'
 dst_http_repository_pass = 'Ah&i6Bzo1V'
 new_universe_json_file = 'tk-universe.json'
@@ -176,7 +176,7 @@ def return_http_artifacts(working_directory):
 def upload_http_nexus(dst_http_protocol,dst_http_host,dst_http_port,dst_http_namespace,http_artifacts):
 
     baseurl ='{}{}:{}/{}/'.format(dst_http_protocol,dst_http_host,dst_http_port,dst_http_namespace)
-    for file in http_artifacts:
+    for file in reversed(http_artifacts):
         print('\n ********** WORKING ON A NEW FILE IN THE LOOP*********\n' + file)
         upload_file={'file' : open(file,'rb')}
         pathurl=(file.split("html/")[1])
