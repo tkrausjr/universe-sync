@@ -39,12 +39,12 @@ dst_registry_namespace ='universe'
 
 dst_http_protocol ='https://'
 dst_http_host = 'repo.jpmchase.net'
-dst_http_port = 80
-dst_http_namespace = 'maven/content/sites/GCP-SITE/universe-sync-script'
+dst_http_port = 443
+dst_http_namespace = 'maven/content/sites/GCP-SITE/universe-sync-stuff'
 dst_http_repository_user = ''
 dst_http_repository_pass = ''
 new_universe_json_file = 'tk-universe.json'
-working_directory = '/var/lib/a_ansible/github/universe-sync'
+working_directory = '/var/lib/a_ansible/github/universe-sync/data/'
 
 def load_universe(universe_image):
     print('--Loading Mesosphere/Universe Docker Image '+universe_image)
