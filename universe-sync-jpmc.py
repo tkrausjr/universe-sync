@@ -30,7 +30,7 @@ pulled_images =[]
 
 http_proxy ='gieproxy.gielab.jpmchase.net:8080'
 https_proxy = http_proxy
-proxies = {"http : http_proxy, "https" : https_proxy}
+proxies = {"http" : http_proxy, "https" : https_proxy}
 
 dst_registry_proto = 'http://'
 dst_registry_host = '192.168.62.128'
@@ -39,10 +39,10 @@ dst_registry_namespace ='universe'
 
 dst_http_protocol ='https://'
 dst_http_host = 'repo.jpmchase.net'
-dst_http_port = 443
-dst_http_namespace = 'maven/content/sites/GCP-SITE/universe-sync-stuff'
-dst_http_repository_user = ''
-dst_http_repository_pass = ''
+dst_http_port = '443'
+dst_http_namespace = 'maven/content/sites/GCP-SITE/ver7'
+dst_http_repository_user = 'O665494'
+dst_http_repository_pass = 'Ah&i6Bzo1V'
 new_universe_json_file = 'tk-universe.json'
 working_directory = '/var/lib/a_ansible/github/universe-sync/data/'
 
@@ -120,7 +120,7 @@ def new_format_image_name(dst_registry_host,dst_registry_port,dst_registry_names
 def tag_images(image,imagetag,fullImageId,dst_registry_host,dst_registry_port):
 
     print("--Tagging Universe Image "+fullImageId + " for Destination Registry "+dst_registry_host+':'+str(dst_registry_port))
-    command = ['docker', 'tag', fullImageId,
+    command = ['sudo', 'docker', 'tag', fullImageId,
         new_format_image_name(dst_registry_host,dst_registry_port,dst_registry_namespace,image)]
         # format_image_name(dst_registry_host+':'+str(dst_registry_port),image)]
     subprocess.check_call(command)
@@ -129,16 +129,16 @@ def tag_images(image,imagetag,fullImageId,dst_registry_host,dst_registry_port):
 def push_images(new_image,docker_target):
     if docker_target == 'docker_registry':
         print("--Pushing Image to Docker Registry - "+new_image)
-        command = ['docker', 'push', new_image]
+        command = ['sudo', 'docker', 'push', new_image]
         subprocess.check_call(command)
     if docker_target == 'quay':
         print("--Pushing Image to Quay - "+new_image)
-        command = ['docker', 'push', new_image]
+        command = ['sudo', 'docker', 'push', new_image]
         subprocess.check_call(command)
 
 def copy_http_data(working_directory,new_universe_json_file):
     print("--Copying Universe HTTP to hosts Working Directory ")
-    command = ['docker', 'cp', 'universe-registry:/usr/share/nginx/html/', working_directory]
+    command = ['sudo', 'docker', 'cp', 'universe-registry:/usr/share/nginx/html/', working_directory]
     subprocess.check_output(command)
 
     command = ['sudo', 'chown', '-R', 'a_ansible:users', working_directory]
@@ -178,13 +178,12 @@ def upload_http_nexus(dst_http_protocol,dst_http_host,dst_http_port,dst_http_nam
     baseurl ='{}{}:{}/{}/'.format(dst_http_protocol,dst_http_host,dst_http_port,dst_http_namespace)
     for file in http_artifacts:
         print('\n ********** WORKING ON A NEW FILE IN THE LOOP*********\n' + file)
-        upload_file={'file' : open(file,'rb')}
+        upload_file={file : open(file,'rb')}
         pathurl=(file.split("html/")[1])
         print("First pathurl = "+pathurl)
         if len(pathurl.rsplit('/',1)) > 1:
             url = '{}{}/'.format(baseurl,pathurl.rsplit('/',1)[0 ])
             print("+++++ STEP 2 needed, url= "+url)
-
         else:
             url = baseurl
             print("+++++ STEP 2 NOT needed, baseurl= "+url)
@@ -223,11 +222,11 @@ if __name__ == "__main__":
                '-e', 'REGISTRY_HTTP_TLS_KEY=/certs/domain.key', 'mesosphere/universe',
                'registry', 'serve', '/etc/docker/registry/config.yml']
     start_universe(universe_image,registry_command)
-  
+    '''
     # DOCKER REPO IMAGE MOVE from UNIVERSE IMAGE to DEST REGISTRY
     src_repos = get_registry_images(src_registry_proto,src_registry_host,src_registry_port)
     src_manifests = get_registry_manifests(src_registry_proto,src_registry_host,src_registry_port,src_repos)
-    '''
+   
     try:
         new_images = []
         for image,imagetag in src_manifests.items():
