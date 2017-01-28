@@ -177,7 +177,7 @@ def upload_http_nexus(dst_http_protocol,dst_http_host,dst_http_port,dst_http_nam
         upload_file={'file' : open(file,'rb')}
         pathurl=(file.split("html/")[1])
         url = '{}{}'.format(baseurl,pathurl)
-        print('Updated URL for Upload = {}{}'.format(baseurl,pathurl)
+        print('Updated URL for Upload = {}{}'.format(baseurl,pathurl))
         
         headers = {'Connection':'keep-alive','content-type': 'multipart/form-data'}
         with open(file,'rb') as uploadfile:
