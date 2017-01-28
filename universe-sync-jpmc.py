@@ -40,7 +40,7 @@ dst_registry_namespace ='universe'
 dst_http_protocol ='https://'
 dst_http_host = 'repo.jpmchase.net'
 dst_http_port = '443'
-dst_http_namespace = 'maven/content/sites/GCP-SITE/scripts27'
+dst_http_namespace = 'maven/content/sites/GCP-SITE/scripts23'
 dst_http_repository_user = 'O665494'
 dst_http_repository_pass = 'Ah&i6Bzo1V'
 new_universe_json_file = 'tk-universe.json'
@@ -177,39 +177,25 @@ def upload_http_nexus(dst_http_protocol,dst_http_host,dst_http_port,dst_http_nam
 
     baseurl ='{}{}:{}/{}/'.format(dst_http_protocol,dst_http_host,dst_http_port,dst_http_namespace)
     for file in reversed(http_artifacts):
-        print('\n ********** WORKING ON A NEW FILE IN THE LOOP*********\n' + file)
+        print('\n Working on file ' + file)
         upload_file={'file' : open(file,'rb')}
         pathurl=(file.split("html/")[1])
         print("First pathurl = "+pathurl)
-        '''
-        if len(pathurl.rsplit('/',1)) > 1:
-            url = '{}{}/'.format(baseurl,pathurl.rsplit('/',1)[0 ])
-            print("+++++ STEP 2 needed, url= "+url)
-            response = requests.post(url, auth=(dst_http_repository_user,dst_http_repository_pass),proxies=proxies,verify=False)
-
-        else:
-            url = baseurl
-            print("+++++ STEP 2 NOT needed, baseurl= "+url)
-        '''
+        
         url = '{}{}'.format(baseurl,pathurl)
         headers = {'Connection':'keep-alive','content-type': 'multipart/form-data'}
-        response = requests.put(url, files=upload_file, auth=(dst_http_repository_user,dst_http_repository_pass),proxies=proxies,headers=headers,verify=False)
+        with open(file,'rb') as uploadfile:
+            response = requests.put(url, data=uploadfile, auth=(dst_http_repository_user,dst_http_repository_pass),headers=headers)
         print (response.raw)
         print (response.request)
         print (str(response.status_code))
 
-
         if response.status_code != 201:
-            print (str(response.status_code) + " Registry API CAll unsuccessful to " + url)
-            print(response.content)
-            print(response.headers)
-            print ("----Raw Nexus Error Message is  " + response.text )
+            print (str(response.status_code) + " -- Nexus API CAll unsuccessful to " + url)
+            print ("response.raise_for_status() is  " + response.raise_for_status())
             exit(1)
         else:
-            print (str(response.status_code) + " Registry API CAll SUCCESS to " + url)
-            print(response.content)
-            print(response.headers)
-            print ("----Raw Nexus Error Message is  " + response.text )
+            print (str(response.status_code) + " -- Nexus API CAll SUCCESS to " + url)
 
 def clean_up_host():
     command = ['sudo', 'docker', 'rm', '-f', 'universe-registry']
