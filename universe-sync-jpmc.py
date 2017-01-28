@@ -8,11 +8,7 @@ import json
 import os
 import fileinput
 
-# Constants
-
-# Set the Target for Docker Iamges
-# Valid options are 'quay' and 'docker_registry'
-
+# Set the Target for Docker Iamges. Valid options are 'quay' and 'docker_registry'
 docker_target = 'quay'
 # Set the Target for HTTP Artifacts including the actual Universe JSON definition itself
 # Valid options are 'nginx' and 'nexus'
@@ -180,16 +176,13 @@ def upload_http_nexus(dst_http_protocol,dst_http_host,dst_http_port,dst_http_nam
         print('\n Working on file ' + file)
         upload_file={'file' : open(file,'rb')}
         pathurl=(file.split("html/")[1])
-        print("First pathurl = "+pathurl)
-        
         url = '{}{}'.format(baseurl,pathurl)
+        print('Updated URL for Upload = {}{}'.format(baseurl,pathurl)
+        
         headers = {'Connection':'keep-alive','content-type': 'multipart/form-data'}
         with open(file,'rb') as uploadfile:
             response = requests.put(url, data=uploadfile, auth=(dst_http_repository_user,dst_http_repository_pass),headers=headers)
-        print (response.raw)
-        print (response.request)
-        print (str(response.status_code))
-
+        
         if response.status_code != 201:
             print (str(response.status_code) + " -- Nexus API CAll unsuccessful to " + url)
             print ("response.raise_for_status() is  " + response.raise_for_status())
