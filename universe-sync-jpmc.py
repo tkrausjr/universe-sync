@@ -17,10 +17,9 @@ http_target = 'nexus'
 remove_images=True # Will remove local copies of images already transferred to dst_registry_host
 universe_image = '/Users/tkraus/test-local-universe-01-23-17-v1.tar'
 src_registry_proto = 'https://'
-src_registry_host = 'localhost'
-src_registry_port = 5000
+src_registry_host = 'localhost:5000'
 src_http_protocol = 'http://'
-src_http_port = 8082
+src_http_host = 'localhost:8082'
 src_insecure = True
 pulled_images =[]
 
@@ -30,12 +29,11 @@ proxies = {"http" : http_proxy, "https" : https_proxy}
 
 dst_registry_proto = 'http://'
 dst_registry_host = 'd-2d10-u01.lab-4.cloudlab.jpmchase.net'
-dst_registry_port = 
 dst_registry_namespace ='universe'
 
 dst_http_protocol ='https://'
-dst_http_host = 'repo.jpmchase.net'
-dst_http_port = '443'
+dst_http_host = 'repo.jpmchase.net:443'
+# dst_http_port = '443'
 dst_http_namespace = 'maven/content/sites/GCP-SITE/scripts23'
 dst_http_repository_user = 'O665494'
 dst_http_repository_pass = 'Ah&i6Bzo1V'
@@ -57,12 +55,12 @@ def start_universe(universe_image,command):
     print('--Waiting 5 Seconds for Container Startup')
     time.sleep(5)
 
-def get_registry_images(registry_proto,registry_host,registry_port):
+def get_registry_images(registry_proto,registry_host):
     print("--Getting Mesosphere/Universe Repositories ")
-    response = requests.get(registry_proto + registry_host + ':'+str(registry_port) +'/v2/_catalog', proxies=proxies, verify=False)
+    response = requests.get(registry_proto + registry_host +'/v2/_catalog', proxies=proxies, verify=False)
 
     if response.status_code != 200:
-        print (str(response.status_code) + " Registry API CAll unsuccessful to " + registry_host + ':'+str(registry_port))
+        print (str(response.status_code) + " Registry API CAll unsuccessful to " + registry_host)
         print ("----Raw Docker Error Message is  " + response.text )
         exit(1)
     else:
@@ -77,11 +75,11 @@ def get_registry_images(registry_proto,registry_host,registry_port):
                 repositories.append(i)
             return repositories
 
-def get_registry_manifests(registry_proto,registry_host,registry_port,repos):
+def get_registry_manifests(registry_proto,registry_host,repos):
     registry_manifest_dict ={}
     print("--Getting Source Mesosphere/Universe Registry Manifests")
     for i in repos:
-            response = requests.get(registry_proto + registry_host + ':'+str(registry_port) +'/v2/'+ i + '/tags/list', verify=False)
+            response = requests.get(registry_proto + registry_host +'/v2/'+ i + '/tags/list', verify=False)
             responseJson=response.json()
             print("----Manifests Response " + str(responseJson))
             name = responseJson['name']
@@ -104,21 +102,19 @@ def format_image_name(host, name):
 
     return '{}/{}'.format(host, name)
 
-def new_format_image_name(dst_registry_host,dst_registry_port,dst_registry_namespace,image):
+def new_format_image_name(dst_registry_host,dst_registry_namespace,image):
     print("Src Imagename is " + image)
     if '/' in image:
-        newimage='{}:{}/{}/{}'.format(dst_registry_host,dst_registry_port,dst_registry_namespace,image.split("/")[1])
+        newimage='{}/{}/{}'.format(dst_registry_host,dst_registry_namespace,image.split("/")[1])
         print("New image is " + newimage)
         return newimage
 
     return image
 
-def tag_images(image,imagetag,fullImageId,dst_registry_host,dst_registry_port):
-
-    print("--Tagging Universe Image "+fullImageId + " for Destination Registry "+dst_registry_host+':'+str(dst_registry_port))
+def tag_images(image,imagetag,fullImageId,dst_registry_host):
+    print("--Tagging Universe Image "+fullImageId + " for Destination Registry "+dst_registry_host)
     command = ['sudo', 'docker', 'tag', fullImageId,
-        new_format_image_name(dst_registry_host,dst_registry_port,dst_registry_namespace,image)]
-        # format_image_name(dst_registry_host+':'+str(dst_registry_port),image)]
+        new_format_image_name(dst_registry_host,dst_registry_namespace,image)]
     subprocess.check_call(command)
     return command[3]
 
@@ -207,8 +203,8 @@ if __name__ == "__main__":
     start_universe(universe_image,registry_command)
     
     # DOCKER REPO IMAGE MOVE from UNIVERSE IMAGE to DEST REGISTRY
-    src_repos = get_registry_images(src_registry_proto,src_registry_host,src_registry_port)
-    src_manifests = get_registry_manifests(src_registry_proto,src_registry_host,src_registry_port,src_repos)
+    src_repos = get_registry_images(src_registry_proto,src_registry_host)
+    src_manifests = get_registry_manifests(src_registry_proto,src_registry_host,src_repos)
    
     try:
         new_images = []
@@ -237,29 +233,17 @@ if __name__ == "__main__":
     with open(working_directory + 'html/universe.json') as json_data:
         src_universe_json = json.load(json_data)
         print("Source Universe JSON = " + str(src_universe_json))
-
-    src_registry_str = src_registry_host +':'+ str(src_registry_port)
-    dst_registry_str = dst_registry_host +':'+ str(dst_registry_port)
-    src_http_str = src_http_protocol + src_registry_host +':'+ str(src_http_port)
-    dst_http_str = dst_http_protocol + dst_http_host
-
-    print("\n Source Registry String = " + src_registry_str)
-    print("Destination Registry String = " + dst_registry_str)
-    print("Source HTTP String = " + src_http_str)
-    print("Destination HTTP String = " + dst_http_str)
-
-    transform_universe_json(src_registry_str,dst_registry_str,working_directory,updated_universe_json_file)
-    transform_universe_json(src_http_str,dst_http_str,working_directory,updated_universe_json_file)
+        
+    transform_universe_json(src_registry_host,dst_registry_host,working_directory,updated_universe_json_file)
+    transform_universe_json(src_http_host,dst_http_host,working_directory,updated_universe_json_file)
 
     with open(updated_universe_json_file) as json_data:
         new_universe_json = json.load(json_data)
         print("Updated Universe JSON = " + str(new_universe_json))
 
-
     # Return a LIST of all Absolute File References for upload to HTTP Repository
     http_artifacts = return_http_artifacts(working_directory)
     print("Cleaned up HTTP Artifacts are " + str(http_artifacts))
-
 
     #Note tested yet not working - needs some work
     print ("\n Configured HTTP Repository is " + http_target)
