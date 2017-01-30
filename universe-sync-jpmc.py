@@ -57,7 +57,7 @@ def start_universe(universe_image,command):
 
 def get_registry_images(registry_proto,registry_host):
     print("--Getting Mesosphere/Universe Repositories ")
-    response = requests.get(registry_proto + registry_host +'/v2/_catalog', proxies=proxies, verify=False)
+    response = requests.get(registry_proto + registry_host +'/v2/_catalog', verify=False)
 
     if response.status_code != 200:
         print (str(response.status_code) + " Registry API CAll unsuccessful to " + registry_host)
