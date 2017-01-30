@@ -196,7 +196,7 @@ def clean_up_host():
 if __name__ == "__main__":
     
     # Temporarily removed line below
-    # load_universe(universe_image)
+    load_universe(universe_image)
     registry_command = ['sudo', 'docker', 'run', '-d', '--name', 'universe-registry', '-v', '/usr/share/nginx/html/','-p','5005:5000', '-e','REGISTRY_HTTP_TLS_CERTIFICATE=/certs/domain.crt',
                '-e', 'REGISTRY_HTTP_TLS_KEY=/certs/domain.key', 'mesosphere/universe',
                'registry', 'serve', '/etc/docker/registry/config.yml']
