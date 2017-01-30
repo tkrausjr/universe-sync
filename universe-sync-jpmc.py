@@ -157,7 +157,7 @@ def return_http_artifacts(working_directory):
     os.chdir(working_directory)
     for subdir, dirs, files in os.walk(working_directory):
         for file in files:
-            if file.startswith("repo-") or file.startswith(".") or file.startswith("index.html") or file.startswith("domain.crt"):
+            if file.startswith(".") or file.startswith("index.html") or file.startswith("domain.crt"):
                 print("Found files to skip = " + file)
 
             else:
