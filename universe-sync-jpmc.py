@@ -165,9 +165,9 @@ def return_http_artifacts(working_directory):
                 http_artifacts.append(os.path.join(subdir, file))
     return http_artifacts
 
-def upload_http_nexus(dst_http_protocol,dst_http_host,dst_http_port,dst_http_namespace,http_artifacts):
+def upload_http_nexus(dst_http_protocol,dst_http_host,dst_http_namespace,http_artifacts):
 
-    baseurl ='{}{}:{}/{}/'.format(dst_http_protocol,dst_http_host,dst_http_port,dst_http_namespace)
+    baseurl ='{}{}/{}/'.format(dst_http_protocol,dst_http_host,dst_http_namespace)
     for file in http_artifacts:
         print('\n Working on file ' + file)
         upload_file={'file' : open(file,'rb')}
@@ -248,7 +248,7 @@ if __name__ == "__main__":
     #Note tested yet not working - needs some work
     print ("\n Configured HTTP Repository is " + http_target)
     if http_target == 'nexus':
-        upload_http_nexus(dst_http_protocol,dst_http_host,dst_http_port,dst_http_namespace,http_artifacts)
+        upload_http_nexus(dst_http_protocol,dst_http_host,dst_http_namespace,http_artifacts)
     elif http_target == 'artifactory':
         upload_http_artifactory()
     else:
