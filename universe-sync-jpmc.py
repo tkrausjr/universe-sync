@@ -169,22 +169,22 @@ def upload_http_nexus(dst_http_protocol,dst_http_host,dst_http_namespace,http_ar
 
     baseurl ='{}{}/{}/'.format(dst_http_protocol,dst_http_host,dst_http_namespace)
     for file in http_artifacts:
-        print('\n Working on file ' + file)
+        print('\nWorking on file ' + file)
         upload_file={'file' : open(file,'rb')}
         pathurl=(file.split("html/")[1])
         url = '{}{}'.format(baseurl,pathurl)
-        print('Updated URL for Upload = {}{}'.format(baseurl,pathurl))
+        print(' Updated URL for Upload = {}{}'.format(baseurl,pathurl))
         
         headers = {'Connection':'keep-alive','content-type': 'multipart/form-data'}
         with open(file,'rb') as uploadfile:
             response = requests.put(url, data=uploadfile, auth=(dst_http_repository_user,dst_http_repository_pass),headers=headers,proxies=proxies)
         
         if response.status_code != 201:
-            print (str(response.status_code) + " -- Nexus API CAll unsuccessful to " + url)
-            print ("response.raise_for_status() is  " + response.raise_for_status())
+            print ("  "+str(response.status_code) + " -- Nexus API CAll unsuccessful to " + url)
+            print (response.raise_for_status())
             exit(1)
         else:
-            print (str(response.status_code) + " -- Nexus API CAll SUCCESS to " + url)
+            print ("  "+str(response.status_code) + " -- Nexus API CAll SUCCESS to " + url)
     return baseurl
     
 def clean_up_host():
