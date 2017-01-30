@@ -220,7 +220,7 @@ if __name__ == "__main__":
             print("Finished with Image ("+image+':'+imagetag+")\n")
         print("\n \n New Images uploaded to "+dst_registry_host+':'+str(dst_registry_port)+" are " + str(new_images))
 
-    except (subprocess.CalledProcessError, urllib.error.HTTPError):
+    except (subprocess.CalledProcessError):
             print('MISSING Docker Images: {}')
     
     # HTTP Artifacts
