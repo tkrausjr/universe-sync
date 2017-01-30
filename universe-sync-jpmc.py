@@ -210,15 +210,15 @@ if __name__ == "__main__":
         new_images = []
         for image,imagetag in src_manifests.items():
             print('Starting on Image ('+image+':'+imagetag+")")
-            fullImageId = src_registry_host + ":" + str(src_registry_port) + "/" + image + ":" + imagetag
+            fullImageId = src_registry_host + "/" + image + ":" + imagetag
             print("Source Docker Image to Pull = " + fullImageId)
             pull_images(fullImageId)
-            new_image=tag_images(image,imagetag,fullImageId,dst_registry_host,dst_registry_port)
+            new_image=tag_images(image,imagetag,fullImageId,dst_registry_host)
             print("Destination Docker Image to Push = " + new_image)
             push_images(new_image,docker_target)
             new_images.append(new_image)
             print("Finished with Image ("+image+':'+imagetag+")\n")
-        print("\n \n New Images uploaded to "+dst_registry_host+':'+str(dst_registry_port)+" are " + str(new_images))
+        print("\n \n New Images uploaded to "+dst_registry_host+ " are " + str(new_images))
 
     except (subprocess.CalledProcessError):
             print('MISSING Docker Images: {}')
