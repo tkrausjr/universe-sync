@@ -185,7 +185,8 @@ def upload_http_nexus(dst_http_protocol,dst_http_host,dst_http_namespace,http_ar
             exit(1)
         else:
             print (str(response.status_code) + " -- Nexus API CAll SUCCESS to " + url)
-
+    return baseurl
+    
 def clean_up_host():
     command = ['sudo', 'docker', 'rm', '-f', 'universe-registry']
     subprocess.check_call(command)
@@ -248,14 +249,16 @@ if __name__ == "__main__":
     #Note tested yet not working - needs some work
     print ("\n Configured HTTP Repository is " + http_target)
     if http_target == 'nexus':
-        upload_http_nexus(dst_http_protocol,dst_http_host,dst_http_namespace,http_artifacts)
+        baseurl = upload_http_nexus(dst_http_protocol,dst_http_host,dst_http_namespace,http_artifacts)
     elif http_target == 'artifactory':
-        upload_http_artifactory()
+        baseurl = upload_http_artifactory()
     else:
         print("Configured HTTP Repsitory is not supported -- " + http_target)
 
+    print("\n Program Finished \n" )
     # Clean up Containers and HTTP Data Directory
     # clean_up_host()
-    print("\n Program Finished \n" )
-
-
+    print("\n ********************* \n" )
+    print("\n ********************* \n" )
+    print('To load the new Universe use the DCOS CLI command')
+    print('{}{}'.format('dcos package repo add ','<repo-name> ', baseurl, new_universe_json_file ))
