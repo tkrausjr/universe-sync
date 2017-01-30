@@ -18,7 +18,7 @@ remove_images=True # Will remove local copies of images already transferred to d
 universe_image = '/Users/tkraus/test-local-universe-01-23-17-v1.tar'
 src_registry_proto = 'https://'
 src_registry_host = 'localhost'
-src_registry_port = 5005
+src_registry_port = 5000
 src_http_protocol = 'http://'
 src_http_port = 8082
 src_insecure = True
@@ -29,8 +29,8 @@ https_proxy = http_proxy
 proxies = {"http" : http_proxy, "https" : https_proxy}
 
 dst_registry_proto = 'http://'
-dst_registry_host = '192.168.62.128'
-dst_registry_port = 5000
+dst_registry_host = 'd-2d10-u01.lab-4.cloudlab.jpmchase.net'
+dst_registry_port = 
 dst_registry_namespace ='universe'
 
 dst_http_protocol ='https://'
@@ -205,7 +205,7 @@ if __name__ == "__main__":
                '-e', 'REGISTRY_HTTP_TLS_KEY=/certs/domain.key', 'mesosphere/universe',
                'registry', 'serve', '/etc/docker/registry/config.yml']
     start_universe(universe_image,registry_command)
-    '''
+    
     # DOCKER REPO IMAGE MOVE from UNIVERSE IMAGE to DEST REGISTRY
     src_repos = get_registry_images(src_registry_proto,src_registry_host,src_registry_port)
     src_manifests = get_registry_manifests(src_registry_proto,src_registry_host,src_registry_port,src_repos)
@@ -226,7 +226,7 @@ if __name__ == "__main__":
 
     except (subprocess.CalledProcessError, urllib.error.HTTPError):
             print('MISSING Docker Images: {}')
-    '''
+    
     # HTTP Artifacts
     # Copy out the entire nginx / html directory to data directory where script is being run.
 
