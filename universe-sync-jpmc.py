@@ -15,7 +15,7 @@ docker_target = 'quay'
 http_target = 'nexus'
 
 remove_images=True # Will remove local copies of images already transferred to dst_registry_host
-universe_image = '/var/lib/a_ansible/offline-universe/mesosphere-universe-09-26-16.tar'
+universe_image = '/var/lib/a_ansible/offline-universe/mesosphere-universe-09-16-16.tar'
 src_registry_proto = 'https://'
 src_registry_host = 'localhost:5005'
 src_http_protocol = 'http://'
