@@ -42,7 +42,7 @@ working_directory = '/var/lib/a_ansible/github/universe-sync/data/'
 
 def load_universe(universe_image):
     print('--Loading Mesosphere/Universe Docker Image '+universe_image)
-    command = ['sudo','docker', 'load', '-i' + universe_image]
+    command = ['sudo','docker', 'load', '-i', universe_image]
     subprocess.check_call(command)
 
 def start_universe(universe_image,command):
