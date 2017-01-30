@@ -177,7 +177,7 @@ def upload_http_nexus(dst_http_protocol,dst_http_host,dst_http_namespace,http_ar
         
         headers = {'Connection':'keep-alive','content-type': 'multipart/form-data'}
         with open(file,'rb') as uploadfile:
-            response = requests.put(url, data=uploadfile, auth=(dst_http_repository_user,dst_http_repository_pass),headers=headers)
+            response = requests.put(url, data=uploadfile, auth=(dst_http_repository_user,dst_http_repository_pass),headers=headers,proxies=proxies)
         
         if response.status_code != 201:
             print (str(response.status_code) + " -- Nexus API CAll unsuccessful to " + url)
