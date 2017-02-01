@@ -34,7 +34,7 @@ dst_registry_namespace ='universe'
 dst_http_protocol ='https://'
 dst_http_host = 'repo.jpmchase.net:443'
 # dst_http_port = '443'
-dst_http_namespace = 'maven/content/sites/GCP-SITE/script-01-30-17'
+dst_http_namespace = 'maven/content/sites/GCP-SITE'
 dst_http_repository_user = 'O665494'
 dst_http_repository_pass = 'Ah&i6Bzo1V'
 new_universe_json_file = 'tk-universe.json'
@@ -114,8 +114,7 @@ def new_format_image_name(dst_registry_host,dst_registry_namespace,image):
 def tag_images(image,imagetag,fullImageId,dst_registry_host):
     print("--Tagging Universe Image "+fullImageId + " for Destination Registry "+dst_registry_host)
     new_image_name = new_format_image_name(dst_registry_host,dst_registry_namespace,image)
-    command = ['sudo', 'docker', 'tag', fullImageId,
-        new_image_name]
+    command = ['sudo', 'docker', 'tag', fullImageId,new_image_name]
     subprocess.check_call(command)
     return new_image_name
 
@@ -168,7 +167,7 @@ def return_http_artifacts(working_directory):
 
 def upload_http_nexus(dst_http_protocol,dst_http_host,dst_http_namespace,http_artifacts):
 
-    baseurl ='{}{}/{}/'.format(dst_http_protocol,dst_http_host,dst_http_namespace)
+    baseurl ='{}{}/{}/{}'.format(dst_http_protocol,dst_http_host,dst_http_namespace,time.strftime("%Y-%m-%d"))
     for file in http_artifacts:
         print('\nWorking on file ' + file)
         upload_file={'file' : open(file,'rb')}
