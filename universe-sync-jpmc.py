@@ -113,10 +113,11 @@ def new_format_image_name(dst_registry_host,dst_registry_namespace,image):
 
 def tag_images(image,imagetag,fullImageId,dst_registry_host):
     print("--Tagging Universe Image "+fullImageId + " for Destination Registry "+dst_registry_host)
+    new_image_name = new_format_image_name(dst_registry_host,dst_registry_namespace,image)
     command = ['sudo', 'docker', 'tag', fullImageId,
-        new_format_image_name(dst_registry_host,dst_registry_namespace,image)]
+        new_image_name]
     subprocess.check_call(command)
-    return command[3]
+    return new_image_name
 
 def push_images(new_image,docker_target):
     if docker_target == 'docker_registry':
