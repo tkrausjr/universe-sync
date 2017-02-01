@@ -167,7 +167,7 @@ def return_http_artifacts(working_directory):
 
 def upload_http_nexus(dst_http_protocol,dst_http_host,dst_http_namespace,http_artifacts):
 
-    baseurl ='{}{}/{}/{}'.format(dst_http_protocol,dst_http_host,dst_http_namespace,time.strftime("%Y-%m-%d"))
+    baseurl ='{}{}/{}/{}/'.format(dst_http_protocol,dst_http_host,dst_http_namespace,time.strftime("%Y-%m-%d"))
     for file in http_artifacts:
         print('\nWorking on file ' + file)
         upload_file={'file' : open(file,'rb')}
