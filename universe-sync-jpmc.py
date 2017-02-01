@@ -237,7 +237,7 @@ if __name__ == "__main__":
     
     dst_http_url ='{}{}/{}/{}'.format(dst_http_protocol,dst_http_host,dst_http_namespace,time.strftime("%Y-%m-%d"))        
     transform_universe_json(src_registry_host,dst_registry_host,working_directory,updated_universe_json_file)
-    transform_universe_json(src_http_host,dst_http_url,working_directory,updated_universe_json_file)
+    transform_universe_json('{}{}'.format(src_http_protocol,src_http_host),dst_http_url,working_directory,updated_universe_json_file)
 
     with open(updated_universe_json_file) as json_data:
         new_universe_json = json.load(json_data)
