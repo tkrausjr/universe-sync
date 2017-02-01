@@ -260,6 +260,5 @@ if __name__ == "__main__":
     # Clean up Containers and HTTP Data Directory
     # clean_up_host()
     print("\n ********************* \n" )
-    print("\n ********************* \n" )
     print('To load the new Universe use the DCOS CLI command')
-    print('{} {} {} {}'.format('dcos package repo add','<repo-name>', baseurl, new_universe_json_file ))
+    print('{} {} {}{}'.format('dcos package repo add','<repo-name>', baseurl, new_universe_json_file ))
