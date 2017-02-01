@@ -15,9 +15,9 @@ docker_target = 'quay'
 http_target = 'nexus'
 
 remove_images=True # Will remove local copies of images already transferred to dst_registry_host
-universe_image = '/var/lib/a_ansible/offline-universe/mesosphere-universe-09-16-16.tar'
+universe_image = '/var/lib/a_ansible/local-universe-01-30-17.tar'
 src_registry_proto = 'https://'
-src_registry_host = 'localhost:5005'
+src_registry_host = 'localhost:5000'
 src_http_protocol = 'http://'
 src_http_host = 'localhost:8082'
 src_insecure = True
@@ -34,7 +34,7 @@ dst_registry_namespace ='universe'
 dst_http_protocol ='https://'
 dst_http_host = 'repo.jpmchase.net:443'
 # dst_http_port = '443'
-dst_http_namespace = 'maven/content/sites/GCP-SITE/scripts23'
+dst_http_namespace = 'maven/content/sites/GCP-SITE/script-01-30-17'
 dst_http_repository_user = 'O665494'
 dst_http_repository_pass = 'Ah&i6Bzo1V'
 new_universe_json_file = 'tk-universe.json'
@@ -198,7 +198,7 @@ if __name__ == "__main__":
     
     # Temporarily removed line below
     load_universe(universe_image)
-    registry_command = ['sudo', 'docker', 'run', '-d', '--name', 'universe-registry', '-v', '/usr/share/nginx/html/','-p','5005:5000', '-e','REGISTRY_HTTP_TLS_CERTIFICATE=/certs/domain.crt',
+    registry_command = ['sudo', 'docker', 'run', '-d', '--name', 'universe-registry', '-v', '/usr/share/nginx/html/','-p','5000:5000', '-e','REGISTRY_HTTP_TLS_CERTIFICATE=/certs/domain.crt',
                '-e', 'REGISTRY_HTTP_TLS_KEY=/certs/domain.key', 'mesosphere/universe',
                'registry', 'serve', '/etc/docker/registry/config.yml']
     start_universe(universe_image,registry_command)
