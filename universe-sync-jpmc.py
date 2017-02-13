@@ -15,7 +15,7 @@ docker_target = 'quay'
 http_target = 'nexus'
 
 remove_images=True # Will remove local copies of images already transferred to dst_registry_host
-universe_image = '/var/lib/a_ansible/local-universe-01-30-17.tar'
+universe_image = '/Users/tkraus/test-local-universe-01-23-17-v1.tar'
 src_registry_proto = 'https://'
 src_registry_host = 'localhost:5000'
 src_http_protocol = 'http://'
@@ -28,21 +28,21 @@ https_proxy = http_proxy
 proxies = {"http" : http_proxy, "https" : https_proxy}
 
 dst_registry_proto = 'http://'
-dst_registry_host = 'd-2d10-u01.lab-4.cloudlab.jpmchase.net'
+dst_registry_host = '192.168.62.128:5000'
 dst_registry_namespace ='universe'
 
 dst_http_protocol ='https://'
-dst_http_host = 'repo.jpmchase.net:443'
+dst_http_host = '192.168.62.128'
 # dst_http_port = '443'
 dst_http_namespace = 'maven/content/sites/GCP-SITE'
-dst_http_repository_user = 'O665494'
-dst_http_repository_pass = 'Ah&i6Bzo1V'
+dst_http_repository_user = 'admin'
+dst_http_repository_pass = 'admin123'
 new_universe_json_file = 'tk-universe.json'
-working_directory = '/var/lib/a_ansible/github/universe-sync/data/'
+working_directory = '/Users/tkraus/gitHub/universe-sync/data/'
 
 def load_universe(universe_image):
     print('--Loading Mesosphere/Universe Docker Image '+universe_image)
-    command = ['sudo','docker', 'load', '-i', universe_image]
+    command = ['docker', 'load', '-i', universe_image]
     subprocess.check_call(command)
 
 def start_universe(universe_image,command):
@@ -90,50 +90,48 @@ def get_registry_manifests(registry_proto,registry_host,repos):
 
 def pull_images(name):
     print('--Pulling docker image: {}'.format(name))
-    command = ['sudo', 'docker', 'pull', name]
+    command = ['docker', 'pull', name]
 
     subprocess.check_call(command)
 
-def format_image_name(host, name):
-    # Probably has a hostname at the front, get rid of it.
-    print("--Formatting Image Name "+host+"/"+name)
-    if '.' in name.split(':')[0]:
-        return '{}/{}'.format(host, "/".join(name.split("/")[1:]))
-
-    return '{}/{}'.format(host, name)
-
-def new_format_image_name(dst_registry_host,dst_registry_namespace,image):
+## Start -JPMC Changes needed for missing TAG in target REPO
+def new_format_image_name(dst_registry_host,dst_registry_namespace,image,imagetag):
     print("Src Imagename is " + image)
     if '/' in image:
-        newimage='{}/{}/{}'.format(dst_registry_host,dst_registry_namespace,image.split("/")[1])
-        print("New image is " + newimage)
+        newimage='{}/{}/{}:{}'.format(dst_registry_host,dst_registry_namespace,image.split("/")[1],imagetag)
+        print("Slash in image name, New image is " + newimage)
         return newimage
 
-    return image
+    else:
+        print("No slash in image so New image is " + newimage)
+        return image
+## Stop JPMC Changes needed for missing TAG in target REPO
 
 def tag_images(image,imagetag,fullImageId,dst_registry_host):
-    print("--Tagging Universe Image "+fullImageId + " for Destination Registry "+dst_registry_host)
-    new_image_name = new_format_image_name(dst_registry_host,dst_registry_namespace,image)
-    command = ['sudo', 'docker', 'tag', fullImageId,new_image_name]
+
+    new_image_name = new_format_image_name(dst_registry_host,dst_registry_namespace,image,imagetag)
+    print("--Tagging temp Universe Image "+fullImageId + " for new Registry "+new_image_name)
+    command = ['docker', 'tag', fullImageId, new_image_name]
     subprocess.check_call(command)
     return new_image_name
+
 
 def push_images(new_image,docker_target):
     if docker_target == 'docker_registry':
         print("--Pushing Image to Docker Registry - "+new_image)
-        command = ['sudo', 'docker', 'push', new_image]
+        command = ['docker', 'push', new_image]
         subprocess.check_call(command)
     if docker_target == 'quay':
         print("--Pushing Image to Quay - "+new_image)
-        command = ['sudo', 'docker', 'push', new_image]
+        command = ['docker', 'push', new_image]
         subprocess.check_call(command)
 
 def copy_http_data(working_directory,new_universe_json_file):
     print("--Copying Universe HTTP to hosts Working Directory ")
-    command = ['sudo', 'docker', 'cp', 'universe-registry:/usr/share/nginx/html/', working_directory]
+    command = ['docker', 'cp', 'universe-registry:/usr/share/nginx/html/', working_directory]
     subprocess.check_output(command)
 
-    command = ['sudo', 'chown', '-R', 'a_ansible:users', working_directory]
+    #command = ['sudo', 'chown', '-R', 'tkraus-m:', working_directory]
     subprocess.check_output(command)
        
     updated_universe_json_file = (working_directory +'html/'+ new_universe_json_file)
@@ -196,9 +194,10 @@ def clean_up_host():
 
 if __name__ == "__main__":
     
+    print('universe-sync-jpmc.py Program RUNNING . . .  ')
     # Temporarily removed line below
     load_universe(universe_image)
-    registry_command = ['sudo', 'docker', 'run', '-d', '--name', 'universe-registry', '-v', '/usr/share/nginx/html/','-p','5000:5000', '-e','REGISTRY_HTTP_TLS_CERTIFICATE=/certs/domain.crt',
+    registry_command = ['docker', 'run', '-d', '--name', 'universe-registry', '-v', '/usr/share/nginx/html/','-p','5000:5000', '-e','REGISTRY_HTTP_TLS_CERTIFICATE=/certs/domain.crt',
                '-e', 'REGISTRY_HTTP_TLS_KEY=/certs/domain.key', 'mesosphere/universe',
                'registry', 'serve', '/etc/docker/registry/config.yml']
     start_universe(universe_image,registry_command)
@@ -208,7 +207,9 @@ if __name__ == "__main__":
     src_manifests = get_registry_manifests(src_registry_proto,src_registry_host,src_repos)
    
     try:
-        new_images = []
+        # JPMC START FIX BELOW
+        old_new_image_dict = {}
+        # *** JPMC END FIX  ***
         for image,imagetag in src_manifests.items():
             print('Starting on Image ('+image+':'+imagetag+")")
             fullImageId = src_registry_host + "/" + image + ":" + imagetag
@@ -217,9 +218,13 @@ if __name__ == "__main__":
             new_image=tag_images(image,imagetag,fullImageId,dst_registry_host)
             print("Destination Docker Image to Push = " + new_image)
             push_images(new_image,docker_target)
-            new_images.append(new_image)
+
+            # *** JPMC START FIX BELOW ***
+            old_new_image_dict[fullImageId] = new_image
             print("Finished with Image ("+image+':'+imagetag+")\n")
-        print("\n \n New Images uploaded to "+dst_registry_host+ " are " + str(new_images))
+            # *** JPMC END FIX  ***
+
+        print("\n \n New Images uploaded to "+dst_registry_host+ " are " + str(old_new_image_dict.items()))
 
     except (subprocess.CalledProcessError):
             print('MISSING Docker Images: {}')
@@ -231,20 +236,28 @@ if __name__ == "__main__":
 
     # HTTP Artifacts - Rewrite the universe.json file with correct Docker and HTTP URL's
     # 3 Lines below are unnecessary if using SED and
-    with open(working_directory + 'html/universe.json') as json_data:
+    with open(working_directory + 'html/repo-up-to-1.8.json') as json_data:
         src_universe_json = json.load(json_data)
-        print("Source Universe JSON = " + str(src_universe_json))
-        
-    transform_universe_json(src_registry_host,dst_registry_host,working_directory,updated_universe_json_file)
+        print("Original Universe JSON = " + str(src_universe_json))
+
+    # *** JPMC START FIX BELOW ***
+
+    # *** JPMC START FIX BELOW *** - CORRECTED REPLACEMENT of DOCKER IMAGES in Universe File
+    for fullImageId,new_image in old_new_image_dict.items():
+        transform_universe_json(fullImageId,new_image,working_directory,updated_universe_json_file)
+    # *** JPMC END FIX  *** -
+
     transform_universe_json(src_http_host,dst_http_host,working_directory,updated_universe_json_file)
 
     with open(updated_universe_json_file) as json_data:
         new_universe_json = json.load(json_data)
-        print("Updated Universe JSON = " + str(new_universe_json))
+        print("NEW Universe JSON = " + str(new_universe_json))
 
+    '''
     # Return a LIST of all Absolute File References for upload to HTTP Repository
     http_artifacts = return_http_artifacts(working_directory)
     print("Cleaned up HTTP Artifacts are " + str(http_artifacts))
+
 
     #Note tested yet not working - needs some work
     print ("\n Configured HTTP Repository is " + http_target)
@@ -254,11 +267,11 @@ if __name__ == "__main__":
         baseurl = upload_http_artifactory()
     else:
         print("Configured HTTP Repsitory is not supported -- " + http_target)
-
+    '''
     print("\n Program Finished \n" )
     # Clean up Containers and HTTP Data Directory
     # clean_up_host()
     print("\n ********************* \n" )
     print("\n ********************* \n" )
     print('To load the new Universe use the DCOS CLI command')
-    print('{} {} {} {}'.format('dcos package repo add','<repo-name>', baseurl, new_universe_json_file ))
+    print('{} {} {}{}'.format('dcos package repo add','<repo-name>', baseurl, new_universe_json_file ))
