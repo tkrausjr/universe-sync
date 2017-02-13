@@ -34,9 +34,15 @@ dst_registry_namespace ='universe'
 dst_http_protocol ='https://'
 dst_http_host = '192.168.62.128'
 # dst_http_port = '443'
+<<<<<<< HEAD
 dst_http_namespace = 'maven/content/sites/GCP-SITE'
 dst_http_repository_user = 'admin'
 dst_http_repository_pass = 'admin123'
+=======
+dst_http_namespace = 'maven/content/sites/GCP-SITE/DCOS-Universe'
+dst_http_repository_user = 'O665494'
+dst_http_repository_pass = 'Ah&i6Bzo1V'
+>>>>>>> 03ae540dcb53417182dfbcc9507bea60f2dab1f3
 new_universe_json_file = 'tk-universe.json'
 working_directory = '/Users/tkraus/gitHub/universe-sync/data/'
 
@@ -165,7 +171,7 @@ def return_http_artifacts(working_directory):
 
 def upload_http_nexus(dst_http_protocol,dst_http_host,dst_http_namespace,http_artifacts):
 
-    baseurl ='{}{}/{}/{}'.format(dst_http_protocol,dst_http_host,dst_http_namespace,time.strftime("%Y-%m-%d"))
+    baseurl ='{}{}/{}/{}/'.format(dst_http_protocol,dst_http_host,dst_http_namespace,time.strftime("%Y-%m-%d"))
     for file in http_artifacts:
         print('\nWorking on file ' + file)
         upload_file={'file' : open(file,'rb')}
@@ -238,6 +244,7 @@ if __name__ == "__main__":
     # 3 Lines below are unnecessary if using SED and
     with open(working_directory + 'html/repo-up-to-1.8.json') as json_data:
         src_universe_json = json.load(json_data)
+<<<<<<< HEAD
         print("Original Universe JSON = " + str(src_universe_json))
 
     # *** JPMC START FIX BELOW ***
@@ -248,6 +255,13 @@ if __name__ == "__main__":
     # *** JPMC END FIX  *** -
 
     transform_universe_json(src_http_host,dst_http_host,working_directory,updated_universe_json_file)
+=======
+        print("Source Universe JSON = " + str(src_universe_json))
+    
+    dst_http_url ='{}{}/{}/{}'.format(dst_http_protocol,dst_http_host,dst_http_namespace,time.strftime("%Y-%m-%d"))        
+    transform_universe_json(src_registry_host,dst_registry_host,working_directory,updated_universe_json_file)
+    transform_universe_json('{}{}'.format(src_http_protocol,src_http_host),dst_http_url,working_directory,updated_universe_json_file)
+>>>>>>> 03ae540dcb53417182dfbcc9507bea60f2dab1f3
 
     with open(updated_universe_json_file) as json_data:
         new_universe_json = json.load(json_data)
@@ -271,7 +285,6 @@ if __name__ == "__main__":
     print("\n Program Finished \n" )
     # Clean up Containers and HTTP Data Directory
     # clean_up_host()
-    print("\n ********************* \n" )
     print("\n ********************* \n" )
     print('To load the new Universe use the DCOS CLI command')
     print('{} {} {}{}'.format('dcos package repo add','<repo-name>', baseurl, new_universe_json_file ))
