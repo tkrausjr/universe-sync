@@ -23,7 +23,7 @@ src_http_host = 'localhost:8082'
 src_insecure = True
 pulled_images =[]
 
-http_proxy ='gieproxy.gielab.jpmchase.net:8080'
+http_proxy ='proxyserver.mydomain.net:8080'
 https_proxy = http_proxy
 proxies = {"http" : http_proxy, "https" : https_proxy}
 
@@ -35,13 +35,13 @@ dst_http_protocol ='https://'
 dst_http_host = '192.168.62.128'
 # dst_http_port = '443'
 <<<<<<< HEAD
-dst_http_namespace = 'maven/content/sites/GCP-SITE'
+dst_http_namespace = 'maven/content/sites/SOME-SITE'
 dst_http_repository_user = 'admin'
 dst_http_repository_pass = 'admin123'
 =======
-dst_http_namespace = 'maven/content/sites/GCP-SITE/DCOS-Universe'
-dst_http_repository_user = 'O665494'
-dst_http_repository_pass = 'Ah&i6Bzo1V'
+dst_http_namespace = 'maven/content/sites/SOME-SITE/DCOS-Universe'
+dst_http_repository_user = 'accountname'
+dst_http_repository_pass = 'password'
 >>>>>>> 03ae540dcb53417182dfbcc9507bea60f2dab1f3
 new_universe_json_file = 'tk-universe.json'
 working_directory = '/Users/tkraus/gitHub/universe-sync/data/'
