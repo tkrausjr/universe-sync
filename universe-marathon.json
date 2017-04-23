@@ -1,0 +1,47 @@
+{
+  "id": "/gcp/prod/universe-server",
+  "cmd": "env && cp $MESOS_SANDBOX/<universe-repo-file> /etc/nginx/html && chmod 0655 /etc/nginx/html/<universe-repo-file> && nginx -g \"daemon off;\"",
+  "instances": 1,
+  "cpus": 0.25,
+  "mem": 128,
+  "requirePorts": true,
+  "constraints": [
+    [
+      "hostname",
+      "UNIQUE"
+    ]
+  ],
+  "fetch": [
+    {
+      "uri": "<universe-repo-uri>"
+    }
+  ],
+  "container": {
+    "docker": {
+      "image": "quay-server-fqdn/universe/universe-server:gcp-v5",
+      "forcePullImage": false,
+      "portMappings": [
+        {
+          "containerPort": 80,
+          "protocol": "tcp",
+          "hostPort": 8085,
+          "labels": {
+            "VIP_0": "/universe-server:80"
+          }
+        }
+      ],
+      "network": "BRIDGE"
+    }
+  },
+  "healthChecks": [
+    {
+      "protocol": "HTTP",
+      "path": "/<universe-repo-file>",
+      "gracePeriodSeconds": 45,
+      "intervalSeconds": 30,
+      "timeoutSeconds": 5,
+      "maxConsecutiveFailures": 3,
+      "ignoreHttp1xx": false
+    }
+  ]
+}
