@@ -345,15 +345,16 @@ if __name__ == "__main__":
     new_universe_json = {}
     new_universe_json["packages"] = new_packages
 
-    command = ['sudo', 'chown', '-R', 'tkraus:wheel', '{}{}'.format(working_directory,universe_json_file)]
+    command = ['sudo', 'chown', '-R', 'tkraus:wheel', '{}{}'.format(working_directory,'/html')]
     subprocess.check_output(command)
 
     with open(updated_universe_json_file, 'w') as json_file:
         json.dump(new_universe_json, json_file, indent=4)
 
     with open(updated_universe_json_file) as json_data:
-        json.load(json_data)
-        print("\n Updated Universe JSON from JSON FILE = " + str(json.load(json_data)))
+        json_check = json.load(json_data)
+        print("Reading updated JSON FILE to verify ")
+        print(json_check)
 
     input ("DEBUG PAUSE - Press Enter to continue . . . ")
 
