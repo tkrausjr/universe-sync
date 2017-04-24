@@ -214,7 +214,7 @@ def newest_transform_json(old_new_image_dict,json_file):
         print("newest_transform_json function is changing "+ fullImageId + " with "+new_image )
         file_string = re.sub(fullImageId, new_image, file_string)
 
-        print(" \n Replacing Image references where authors did not include a Docker TAG")
+        print(" \n newest_transform_json is replacing Image references where authors did not include a Docker TAG")
         short_fullImageId = ":".join(fullImageId.split(":")[0:2])
         short_new_image = "".join(new_image.split(":")[0])
         print("newest_transform_json function is changing "+ short_fullImageId + " with "+ short_new_image )
@@ -223,11 +223,11 @@ def newest_transform_json(old_new_image_dict,json_file):
 
     print("***** DEBUG ***** Updated json = " + file_string)
     # LEFT OFF HERE _ EVERYTHING WORKING EXCEPT WRITING THE FILE OUT
-    '''
-    file_handle = open(json_file, 'wb')
+
+    file_handle = open(json_file, 'w')
     file_handle.write(file_string)
     file_handle.close()
-    '''
+
 
 def return_http_artifacts(working_directory):
     http_artifacts = []
