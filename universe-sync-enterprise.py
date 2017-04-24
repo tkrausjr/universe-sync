@@ -214,8 +214,8 @@ def newest_transform_json(old_new_image_dict,json_file):
         file_string = re.sub(fullImageId, new_image, file_string)
 
         print(" \n Replacing Image references where authors did not include a Docker TAG")
-        short_fullImageId = "".join(fullImageId.split(":")[0:2])
-        short_new_image = "".join(new_image.split(":")[0])
+        short_fullImageId = ":".join(fullImageId.split(":")[0:2])
+        short_new_image = ":".join(new_image.split(":")[0])
         print("newest_transform_json function is changing "+ short_fullImageId + " with "+ short_new_image )
         file_string = re.sub(short_fullImageId, short_new_image, file_string)
 
@@ -389,7 +389,7 @@ if __name__ == "__main__":
     '''
     newest_transform_json(old_new_image_dict,updated_universe_json_file)
     input ("DEBUG PAUSE - Press Enter to continue . . . ")
-    
+
     '''
     # Write the updated JSON to the json file repo-up-to-1.8.json
     with open(updated_universe_json_file, 'w') as json_file:
