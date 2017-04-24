@@ -60,8 +60,8 @@ def start_universe(universe_image,command):
     print('--Starting Mesosphere/Universe Docker Image '+universe_image)
     subprocess.Popen(command).wait()
     print('--Successfully Started Mesosphere/Universe Docker Image '+universe_image)
-    print('--Waiting 15 Seconds for Container Startup')
-    time.sleep(15)
+    print('--Waiting 5 Seconds for Container Startup')
+    time.sleep(5)
 
 def docker_login(dst_registry_proto,dst_registry_host):
     print('--Docker Logging in for Quay Server: '+ dst_registry_host )
@@ -344,6 +344,9 @@ if __name__ == "__main__":
 
     new_universe_json = {}
     new_universe_json["packages"] = new_packages
+
+    command = ['sudo', 'chown', '-R', 'tkraus:wheel', '{}{}'.format(working_directory,universe_json_file)]
+    subprocess.check_output(command)
 
     with open(updated_universe_json_file, 'w') as json_file:
         json.dump(new_universe_json, json_file, indent=4)
