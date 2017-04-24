@@ -182,7 +182,7 @@ def new_transform_json(src_string,dst_string,packages):
                     package[key]=new_string
     return packages
 
-
+    '''
     print("\n new_transform_json function is changing <"+ src_string + "> with <"+dst_string +">.")
     if src_string in content:
         print(" FOUND String, Changing "+ src_string +" to "+ dst_string +"\n")
@@ -191,6 +191,14 @@ def new_transform_json(src_string,dst_string,packages):
     else:
         print("  --- *** ERROR *** --- "+ src_string + " not found in \n")
         return content
+    '''
+
+def newer_transform_json(old_new_image_dict,json_file):
+    for fullImageId,new_image in old_new_image_dict.items():
+        print("transform_json function is changing <"+ fullImageId + "> with <"+new_image +">.")
+        for line in fileinput.input(json_file, inplace=True):
+            # the comma after each print statement is needed to avoid double line breaks
+            print(line.replace(fullImageId,new_image),)
 
 def return_http_artifacts(working_directory):
     http_artifacts = []
@@ -338,25 +346,33 @@ if __name__ == "__main__":
         src_universe_json = json.load(json_data)
     packages = src_universe_json['packages']
 
+    '''
     # Iterate through the DICT of OLD-NEW Docker Image Tags
     for fullImageId,new_image in old_new_image_dict.items():
         new_packages=new_transform_json(fullImageId,new_image,packages)
-
     new_universe_json = {}
     new_universe_json["packages"] = new_packages
+
+    '''
+
+    newer_transform_json(old_new_image_dict,updated_universe_json_file)
 
     command = ['sudo', 'chown', '-R', 'tkraus:wheel', '{}{}'.format(working_directory,'/html')]
     subprocess.check_output(command)
 
+    '''
+    # Write the updated JSON to the json file repo-up-to-1.8.json
     with open(updated_universe_json_file, 'w') as json_file:
         json.dump(new_universe_json, json_file, indent=4)
+    '''
 
+    # Check the updated JSON file for correctness
     with open(updated_universe_json_file) as json_data:
         json_check = json.load(json_data)
         print("Reading updated JSON FILE to verify ")
         print(json_check)
 
-    input ("DEBUG PAUSE - Press Enter to continue . . . ")
+    input (" \n DEBUG PAUSE - CHECK THE JSON & Press Enter to continue . . . ")
 
     dst_http_url ='{}{}/{}{}'.format(dst_http_protocol,dst_http_host,dst_http_namespace,time.strftime("%Y-%m-%d"))
     transform_json('{}{}'.format(src_http_protocol,src_http_host),dst_http_url,updated_universe_json_file)
