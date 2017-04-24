@@ -195,10 +195,10 @@ def new_transform_json(src_string,dst_string,packages):
 
 def newer_transform_json(old_new_image_dict,json_file):
     for fullImageId,new_image in old_new_image_dict.items():
-        print("transform_json function is changing <"+ fullImageId + "> with <"+new_image +">.")
+        print("newer_transform_json function is changing <"+ fullImageId + "> with <"+new_image +">.")
         for line in fileinput.input(json_file, inplace=True):
             # the comma after each print statement is needed to avoid double line breaks
-            print(line.replace(fullImageId,new_image),)
+            print(line.rstrip().replace(fullImageId,new_image),)
 
 def return_http_artifacts(working_directory):
     http_artifacts = []
@@ -359,7 +359,7 @@ if __name__ == "__main__":
 
     newer_transform_json(old_new_image_dict,updated_universe_json_file)
 
-    
+
     '''
     # Write the updated JSON to the json file repo-up-to-1.8.json
     with open(updated_universe_json_file, 'w') as json_file:
