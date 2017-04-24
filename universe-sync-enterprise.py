@@ -206,7 +206,7 @@ def newer_transform_json(old_new_image_dict,json_file):
 
 def newest_transform_json(old_new_image_dict,json_file):
     file_handle = open(json_file, 'rb')
-    file_string = file_handle.read()
+    file_string = file_handle.read().decode('utf-8')
     file_handle.close()
 
     for fullImageId,new_image in old_new_image_dict.items():
