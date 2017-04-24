@@ -215,7 +215,7 @@ def newest_transform_json(old_new_image_dict,json_file):
 
         print(" \n Replacing Image references where authors did not include a Docker TAG")
         short_fullImageId = ":".join(fullImageId.split(":")[0:2])
-        short_new_image = ":".join(new_image.split(":")[0])
+        short_new_image = "".join(new_image.split(":")[0])
         print("newest_transform_json function is changing "+ short_fullImageId + " with "+ short_new_image )
         file_string = re.sub(short_fullImageId, short_new_image, file_string)
 
