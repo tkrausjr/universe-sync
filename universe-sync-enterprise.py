@@ -362,8 +362,9 @@ if __name__ == "__main__":
     transform_json('{}{}'.format(src_http_protocol,src_http_host),dst_http_url,updated_universe_json_file)
 
     with open(updated_universe_json_file) as json_data:
-        json.load(json_data)
-        print("\n Updated Universe JSON from JSON FILE = " + str(json.load(json_data)))
+        json_check = json.load(json_data)
+        print("Reading updated JSON FILE to verify ")
+        print(json_check)
 
     # Return a LIST of all Absolute File References for upload to HTTP Repository
     http_artifacts = return_http_artifacts(working_directory)
