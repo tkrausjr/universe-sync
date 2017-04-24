@@ -11,6 +11,7 @@ import getopt
 import shlex
 import shutil
 import marathon
+import re
 
 # Set the Target for Docker Iamges. Valid options are 'quay' and 'docker_registry'
 docker_target = 'quay'
@@ -194,6 +195,7 @@ def new_transform_json(src_string,dst_string,packages):
     '''
 
 def newer_transform_json(old_new_image_dict,json_file):
+# This not working either
     for fullImageId,new_image in old_new_image_dict.items():
         print(str(fullImageId))
         print(str(new_image))
@@ -201,6 +203,20 @@ def newer_transform_json(old_new_image_dict,json_file):
         for line in fileinput.input(json_file, inplace=True):
             # the comma after each print statement is needed to avoid double line breaks
             print(line.rstrip().replace(str(fullImageId),str(new_image)),)
+
+def newest_transform_json(old_new_image_dict,json_file):
+    file_handle = open(json_file, 'rb')
+    file_string = file_handle.read()
+    file_handle.close()
+
+    for fullImageId,new_image in old_new_image_dict.items():
+        print("newest_transform_json function is changing "+ fullImageId + " with "+new_image )
+        file_string = (re.sub(fullImageId, new_image, file_string))
+
+    file_handle = open(json_file, 'wb')
+    file_handle.write(file_string)
+    file_handle.close()
+
 
 def return_http_artifacts(working_directory):
     http_artifacts = []
@@ -358,9 +374,10 @@ if __name__ == "__main__":
     '''
     command = ['sudo', 'chown', '-R', 'tkraus:wheel', '{}{}'.format(working_directory,'/html')]
     subprocess.check_output(command)
-
+    '''
     newer_transform_json(old_new_image_dict,updated_universe_json_file)
-
+    '''
+    newest_transform_json(old_new_image_dict,updated_universe_json_file)
 
     '''
     # Write the updated JSON to the json file repo-up-to-1.8.json

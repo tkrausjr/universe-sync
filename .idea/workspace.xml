@@ -38,9 +38,11 @@
       <file leaf-file-name="universe-sync-enterprise.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/universe-sync-enterprise.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.615894">
-              <caret line="202" column="71" selection-start-line="202" selection-start-column="71" selection-end-line="202" selection-end-column="71" />
-              <folding />
+            <state vertical-scroll-proportion="0.8543046">
+              <caret line="379" column="71" selection-start-line="379" selection-start-column="71" selection-end-line="379" selection-end-column="71" />
+              <folding>
+                <element signature="e#25#40#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -761,9 +763,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/universe-sync-enterprise.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.615894">
-          <caret line="202" column="71" selection-start-line="202" selection-start-column="71" selection-end-line="202" selection-end-column="71" />
-          <folding />
+        <state vertical-scroll-proportion="0.8543046">
+          <caret line="379" column="71" selection-start-line="379" selection-start-column="71" selection-end-line="379" selection-end-column="71" />
+          <folding>
+            <element signature="e#25#40#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
