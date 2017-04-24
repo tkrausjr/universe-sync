@@ -214,13 +214,15 @@ def newest_transform_json(old_new_image_dict,json_file):
         file_string = re.sub(fullImageId, new_image, file_string)
 
         print(" \nReplacing Image references where authors did not include a Docker TAG")
-        print(fullImageId.split(":")[1])
-        print(new_image.split(":")[1])
+        print(fullImageId.split(":")[0])
+        print(new_image.split(":")[0])
 
+
+    '''
     file_handle = open(json_file, 'wb')
     file_handle.write(file_string)
     file_handle.close()
-
+    '''
 
 def return_http_artifacts(working_directory):
     http_artifacts = []
