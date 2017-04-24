@@ -388,7 +388,8 @@ if __name__ == "__main__":
     newer_transform_json(old_new_image_dict,updated_universe_json_file)
     '''
     newest_transform_json(old_new_image_dict,updated_universe_json_file)
-
+    input ("DEBUG PAUSE - Press Enter to continue . . . ")
+    
     '''
     # Write the updated JSON to the json file repo-up-to-1.8.json
     with open(updated_universe_json_file, 'w') as json_file:
