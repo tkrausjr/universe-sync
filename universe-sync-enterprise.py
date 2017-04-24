@@ -354,12 +354,12 @@ if __name__ == "__main__":
     new_universe_json["packages"] = new_packages
 
     '''
-
-    newer_transform_json(old_new_image_dict,updated_universe_json_file)
-
     command = ['sudo', 'chown', '-R', 'tkraus:wheel', '{}{}'.format(working_directory,'/html')]
     subprocess.check_output(command)
 
+    newer_transform_json(old_new_image_dict,updated_universe_json_file)
+
+    
     '''
     # Write the updated JSON to the json file repo-up-to-1.8.json
     with open(updated_universe_json_file, 'w') as json_file:
