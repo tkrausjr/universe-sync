@@ -29,7 +29,7 @@ pulled_images =[]
 
 # Update section below if a proxy exists between server where script is run and destination HTTP server
 # IF proxy exists between server where script runs & Quay/registry svr then setup a Docker Daemon proxy also
-http_proxy ='proxy.domain.net:8080'
+http_proxy =''
 https_proxy = http_proxy
 proxies = {"http" : http_proxy, "https" : https_proxy}
 
@@ -157,8 +157,9 @@ def copy_http_data(working_directory,universe_json_file):
     print("--Copying Universe HTTP to hosts Working Directory ")
     command = ['sudo', 'docker', 'cp', 'temp-universe-sync:/usr/share/nginx/html/', working_directory]
     subprocess.check_output(command)
-    command = ['sudo', 'chown', '-R', 'a_ansible:users', working_directory]
-    subprocess.check_output(command)
+    if mode != 'test':
+        command = ['sudo', 'chown', '-R', 'a_ansible:users', working_directory]
+        subprocess.check_output(command)
     updated_universe_json_file = (working_directory +'html/'+ universe_json_file)
     return updated_universe_json_file  # Return updated reference to the now modified Universe.json file
 
@@ -168,15 +169,28 @@ def transform_json(src_string,dst_string,json_file):
         # the comma after each print statement is needed to avoid double line breaks
         print(line.replace(src_string,dst_string),)
 
-def new_transform_json(src_string,dst_string,content):
+def new_transform_json(src_string,dst_string,packages):
+    for package in packages:
+        for key, value in package.items():
+            if key == 'resource' or key == 'config':
+                print('\n Old Value is {}'.format(value))
+                stringvalue = str(value)
+                if src_string in stringvalue:
+                    print("Found the " +src_string)
+                    new_string=stringvalue.replace(src_string,dst_string)
+                    print("\n New String Value = "+new_string)
+                    package[key]=new_string
+    return packages
+
+
     print("\n new_transform_json function is changing <"+ src_string + "> with <"+dst_string +">.")
     if src_string in content:
         print(" FOUND String, Changing "+ src_string +" to "+ dst_string +"\n")
         content.replace(src_string, dst_string)
-        return
+        return content
     else:
         print("  --- *** ERROR *** --- "+ src_string + " not found in \n")
-        return
+        return content
 
 def return_http_artifacts(working_directory):
     http_artifacts = []
@@ -284,7 +298,8 @@ if __name__ == "__main__":
                '-e', 'REGISTRY_HTTP_TLS_KEY=/certs/domain.key', 'mesosphere/universe',
                'registry', 'serve', '/etc/docker/registry/config.yml']
     start_universe(universe_image,registry_command)
-    docker_login(dst_registry_proto,dst_registry_host)
+    if mode != 'test':
+        docker_login(dst_registry_proto,dst_registry_host)
 
     # DOCKER REPO IMAGE MOVE from UNIVERSE IMAGE to DEST REGISTRY
     src_repos = get_registry_images(src_registry_proto,src_registry_host)
@@ -299,10 +314,10 @@ if __name__ == "__main__":
             pull_images(fullImageId)
             new_image=tag_images(image,imagetag,fullImageId,dst_registry_host)
             print("Destination Docker Image to Push = " + new_image)
-            push_images(new_image,docker_target)
-
-            # New section to make Quay REPO Publicly Open - -
-            make_repo_public(new_image,dst_registry_proto)
+            if mode != 'test':
+                push_images(new_image,docker_target)
+                # New section to make Quay REPO Publicly Open - -
+                make_repo_public(new_image,dst_registry_proto)
 
             # Build a Python Dict with OLD Image as key and New Image as Value
             old_new_image_dict[fullImageId] = new_image
@@ -319,19 +334,23 @@ if __name__ == "__main__":
 
     # HTTP Artifacts - Rewrite the universe.json file with correct Docker and HTTP URL's
     # 3 Lines below are unnecessary if using SED and
-    with open(working_directory + 'html/' + universe_json_file) as json_data:
+    with open(updated_universe_json_file, 'r') as json_data:
         src_universe_json = json.load(json_data)
+    packages = src_universe_json['packages']
 
     # Iterate through the DICT of OLD-NEW Docker Image Tags
-
-    s = open(working_directory + 'html/' + universe_json_file, 'r')
-    universe_text=s.read()
     for fullImageId,new_image in old_new_image_dict.items():
-        new_transform_json(fullImageId,new_image,universe_text)
-    s.close()
-    f = open('repo-up-to-1.8.json', 'w')
-    f.write(new_transform_json)
-    f.close()
+        new_packages=new_transform_json(fullImageId,new_image,packages)
+
+    new_universe_json = {}
+    new_universe_json["packages"] = new_packages
+
+    with open(updated_universe_json_file, 'w') as json_file:
+        json.dump(new_universe_json, json_file, indent=4)
+
+    with open(updated_universe_json_file) as json_data:
+        json.load(json_data)
+        print("\n Updated Universe JSON from JSON FILE = " + str(json.load(json_data)))
 
     input ("DEBUG PAUSE - Press Enter to continue . . . ")
 
@@ -339,8 +358,8 @@ if __name__ == "__main__":
     transform_json('{}{}'.format(src_http_protocol,src_http_host),dst_http_url,updated_universe_json_file)
 
     with open(updated_universe_json_file) as json_data:
-        new_universe_json = json.load(json_data)
-        print("Target/Updated Universe JSON = " + str(new_universe_json))
+        json.load(json_data)
+        print("\n Updated Universe JSON from JSON FILE = " + str(json.load(json_data)))
 
     # Return a LIST of all Absolute File References for upload to HTTP Repository
     http_artifacts = return_http_artifacts(working_directory)
@@ -400,8 +419,10 @@ if __name__ == "__main__":
         print('{} {} {}'.format('Universe HTTP Artifacts Archived to', zipfile, 'in WORKING Directory'))
 
 # Clean up Containers and HTTP Data Directory
-# clean_up_tmp()
-clean_up_images()
+
+if mode != 'test':
+    clean_up_tmp()
+    clean_up_images()
 
 print("\n ********************* \n")
 print("\n Program Finished \n" )
