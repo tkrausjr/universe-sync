@@ -210,6 +210,7 @@ def newest_transform_json(old_new_image_dict,json_file):
     file_handle.close()
 
     for fullImageId,new_image in old_new_image_dict.items():
+        # THIS APPEARS TO BE REDUNDANT aND THE short versions below will CATCH ALL !!!
         print("newest_transform_json function is changing "+ fullImageId + " with "+new_image )
         file_string = re.sub(fullImageId, new_image, file_string)
 
