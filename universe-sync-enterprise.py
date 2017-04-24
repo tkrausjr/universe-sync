@@ -200,7 +200,7 @@ def newer_transform_json(old_new_image_dict,json_file):
         print("newer_transform_json function is changing <"+ fullImageId + "> with <"+new_image +">.")
         for line in fileinput.input(json_file, inplace=True):
             # the comma after each print statement is needed to avoid double line breaks
-            print(line.rstrip().replace(fullImageId,new_image),)
+            print(line.rstrip().replace(str(fullImageId),str(new_image)),)
 
 def return_http_artifacts(working_directory):
     http_artifacts = []
