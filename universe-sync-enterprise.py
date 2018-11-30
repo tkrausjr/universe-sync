@@ -304,7 +304,7 @@ if __name__ == "__main__":
     found_m = False
     for opt, arg in opts:
       if opt == '-h':
-         print ('universe-sync-jpmc.py -i <universe_image> -m <scan/sync>')
+         print ('universe-sync-enterprise.py -i <universe_image> -m <scan/sync>')
          print ('   <universe_image> is the tar archive of a mesosphere/universe docker image')
          print ('   <scan/sync> choose \'scan\' to create a ZIP file ONLY of HTTP Artifacts for Blackduck Scanning before sync.')
          print ('   <scan/sync> choose \'sync\' to fully synchronize Universe Docker Images and HTTP Artifacts to targets.')
